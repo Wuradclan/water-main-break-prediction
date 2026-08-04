@@ -1,0 +1,23 @@
+# Fichiers de configuration IDE
+.idea/
+
+# Environnements virtuels
+.venv/
+venv/
+.env/
+
+# Base de données et historiques MLflow (pour ne pas polluer GitHub)
+mlruns/
+mlflow.db
+
+# Fichiers compilés par Python
+__pycache__/
+*.pyc
+logs/
+.DS_Store
+
+# Modèles binaires
+*.pkl
+models/
+
+/h2o_feature_importance.csv

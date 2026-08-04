@@ -1,0 +1,22 @@
+# Base Data Science
+numpy
+pandas
+scikit-learn
+joblib
+
+# Modèles ML
+xgboost
+h2o
+
+# MLOps & Tracking
+mlflow
+cloudpickle
+skops
+optuna
+
+# API & Frontend
+fastapi
+uvicorn
+requests
+streamlit
+category_encoders

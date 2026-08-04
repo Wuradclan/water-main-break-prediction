@@ -1,0 +1,72 @@
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: mlflow/Dockerfile
+    container_name: bris-aqueduc-mlflow
+    hostname: mlflow
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:///mlflow.db
+      --default-artifact-root /mlruns
+      --host 0.0.0.0
+      --port 5000
+      --allowed-hosts "*"
+      --cors-allowed-origins "*"
+    ports:
+      - "5050:5000"
+    volumes:
+      - ./mlruns:/mlruns
+      - .:/app
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import socket; s=socket.socket(); s.settimeout(2); s.connect(('127.0.0.1', 5000)); s.close()\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  trainer:
+    build:
+      context: .
+      dockerfile: train/Dockerfile
+    container_name: bris-aqueduc-trainer
+    volumes:
+      - ./mlruns:/mlruns
+      - .:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    command: >
+      python -m src.train
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: bris-aqueduc-api
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+      trainer:
+        condition: service_started
+    volumes:
+      - .:/app
+      - ./mlruns:/mlruns
+
+  frontend:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    container_name: bris-aqueduc-frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_started
+    volumes:
+      - .:/app
