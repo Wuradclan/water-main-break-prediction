@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # On copie le code source
 COPY api/ ./api/
 COPY src/ ./src/
-COPY models/ ./models/
+# Create the empty models directory instead of copying it
+RUN mkdir -p ./models/
 
 CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
