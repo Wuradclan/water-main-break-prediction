@@ -67,20 +67,23 @@ docker compose logs -f mlflow
 
 ### Training Models
 
-Train a model inside an isolated, ephemeral trainer container. It will automatically connect to MLflow and clean itself up (`--rm`) when finished:
+Train a model by executing the training script directly inside the running trainer container:
 
 ```bash
 # Classic manual training (e.g., Logistic Regression, Random Forest)
-docker compose run --rm trainer python -m src.train --model_type logistic
-docker compose run --rm trainer python -m src.train --model_type random_forest
+docker compose exec trainer python -m src.train --model_type logistic
+docker compose exec trainer python -m src.train --model_type random_forest
 
 # Optuna hyperparameter tuning (maximizes PR-AUC with F1 overfit penalty)
-docker compose run --rm trainer python -m src.train --model_type xgboost --tune --n_trials 15
+docker compose exec trainer python -m src.train --model_type xgboost --tune --n_trials 15
 
 # H2O AutoML classification
-docker compose run --rm trainer python -m src.train --model_type h2o
+docker compose exec trainer python -m src.train --model_type h2o
 
 ```
+
+> **Debug tip:** To open an interactive Bash terminal inside the trainer container:
+> `docker compose exec trainer bash`
 
 ### Reloading the API Champion
 
@@ -225,7 +228,7 @@ Models are logged with an explicit **MLflow signature** + `input_example` (pipe 
 ### Optuna
 
 ```bash
-docker compose run --rm trainer python -m src.train --model_type xgboost --tune --n_trials 20
+docker compose exec trainer python -m src.train --model_type xgboost --tune --n_trials 20
 
 ```
 
