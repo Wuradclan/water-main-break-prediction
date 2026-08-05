@@ -1,6 +1,3 @@
-Voici la traduction complète en français. Vous pouvez l'ajouter à la suite de votre document actuel (par exemple, en ajoutant un titre `---` puis `## Version Française`), ou créer un fichier séparé nommé `README.fr.md`.
-
-Copiez ce bloc pour la version française :
 
 ```markdown
 # Prédiction des Risques de Bris d'Aqueduc (Kitchener–Waterloo) — MLOps de bout en bout
