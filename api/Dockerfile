@@ -1,15 +1,15 @@
 # api/Dockerfile
 FROM python:3.11-slim
 
-# Ensuite seulement, on peut mettre les autres instructions
-#RUN apt-get update && apt-get install -y libomp-dev && rm -rf /var/lib/apt/lists/*
-# Ajout de Java pour pouvoir charger les modèles H2O
-RUN apt-get update && apt-get install -y default-jdk libomp-dev && rm -rf /var/lib/apt/lists/*
+# On installe uniquement libomp-dev (requis par XGBoost sur certains systèmes)
+RUN apt-get update && apt-get install -y libomp-dev default-jre && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+
+# --no-cache-dir pour ne pas stocker les fichiers d'installation lourds
+RUN pip install --no-cache-dir -r requirements.txt
 
 # On copie le code source
 COPY api/ ./api/

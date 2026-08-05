@@ -13,6 +13,7 @@ import traceback
 from typing import Optional
 
 import mlflow
+import mlflow.h2o
 import mlflow.sklearn
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
@@ -109,21 +110,35 @@ def _features_frame(payload: PipeBreakRequest) -> pd.DataFrame:
 
 
 def _predict_proba_positive(model, frame: pd.DataFrame) -> float:
+    # 1. Priorité absolue à predict_proba si le modèle natif le supporte (Sklearn / XGBoost)
     if hasattr(model, "predict_proba"):
         proba = model.predict_proba(frame)
         if getattr(proba, "ndim", 1) == 2 and proba.shape[1] >= 2:
             return float(proba[0, 1])
         return float(proba[0])
+
+    # 2. Si le modèle utilise decision_function (ex: SVC)
     if hasattr(model, "decision_function"):
         import math
-
         score = float(model.decision_function(frame)[0])
         return 1.0 / (1.0 + math.exp(-score))
-    return float(model.predict(frame)[0])
+
+    # 3. Fallback pour les prédictions standard (H2O DataFrame ou pyfunc)
+    predictions = model.predict(frame)
+    
+    if isinstance(predictions, pd.DataFrame):
+        if "p1" in predictions.columns:
+            return float(predictions["p1"].iloc[0])
+        return float(predictions.iloc[0, 0])
+        
+    if isinstance(predictions, pd.Series):
+        return float(predictions.iloc[0])
+        
+    return float(predictions[0])
 
 
 def load_best_model_from_mlflow() -> None:
-    """Select the gate champion and load its sklearn pipeline from MLflow."""
+    """Select the gate champion and load its native model pipeline from MLflow."""
     global best_model, champion_info, model_name_info
 
     try:
@@ -134,7 +149,14 @@ def load_best_model_from_mlflow() -> None:
         selection = select_champion_run(tracking_uri=tracking_uri)
         print(explain_selection(selection))
 
-        model = mlflow.sklearn.load_model(selection.model_uri)
+        model_type = selection.model_type.lower()
+        if "h2o" in model_type:
+            model = mlflow.h2o.load_model(selection.model_uri)
+        else:
+            try:
+                model = mlflow.sklearn.load_model(selection.model_uri)
+            except Exception:
+                model = mlflow.pyfunc.load_model(selection.model_uri)
 
         best_model = model
         champion_info = selection
@@ -146,7 +168,6 @@ def load_best_model_from_mlflow() -> None:
         model_name_info = "Aucun modèle chargé"
         print(f"❌ Failed to load champion model: {exc}")
         traceback.print_exc()
-
 
 load_best_model_from_mlflow()
 

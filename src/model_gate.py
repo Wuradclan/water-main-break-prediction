@@ -52,6 +52,7 @@ class ChampionSelection:
     run_name: str
     model_type: str
     model_uri: str
+    horizon_years: int
     pr_auc_test: float
     f1_train: float
     f1_test: float
@@ -143,8 +144,10 @@ def fetch_candidate_runs(
         runs = runs[runs["tags.mlflow.parentRunId"].isnull()].copy()
     if "tags.mlflow.runName" in runs.columns:
         runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("trial_")].copy()
-        # Parent Optuna study runs typically have no packaged model artifact.
-        runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("Optuna_Study_")].copy()
+        # Note: Optuna_Study_* parent runs are NOT excluded here — train.py logs the
+        # tuned champion's model artifact directly onto that parent run, so it must
+        # remain eligible. `_has_logged_model` below is what actually screens out
+        # study runs that never got a champion refit.
 
     missing = [c for c in REQUIRED_METRICS if c not in runs.columns]
     if missing:
@@ -217,12 +220,20 @@ def select_champion_run(
     run_name = str(best.get("tags.mlflow.runName", "unnamed"))
     model_type = str(best.get("params.model_type", run_name))
     run_id = str(best["run_id"])
+    # --- EXTRACTION DE L'HORIZON ---
+    raw_horizon = best.get("params.horizon_years", 5)
+    try:
+        horizon_years = int(float(raw_horizon)) if pd.notna(raw_horizon) else 5
+    except (ValueError, TypeError):
+        horizon_years = 5
+    # -------------------------------
 
     return ChampionSelection(
         run_id=run_id,
         run_name=run_name,
         model_type=model_type,
         model_uri=f"runs:/{run_id}/model",
+        horizon_years=horizon_years,
         pr_auc_test=float(best["metrics.pr_auc_test"]),
         f1_train=float(best["metrics.f1_train"]),
         f1_test=float(best["metrics.f1_test"]),

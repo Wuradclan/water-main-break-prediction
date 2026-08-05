@@ -14,7 +14,6 @@ import streamlit as st
 
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
-HORIZON_YEARS = 5
 
 MATERIAL_OPTIONS = [
     "CI",
@@ -156,17 +155,19 @@ predict_clicked = st.sidebar.button("Prédire le risque de rupture", type="prima
 # Main panel
 # ---------------------------------------------------------------------------
 st.title("Risque de rupture de conduite — Kitchener-Waterloo")
+
+model_info = fetch_model_info()
+champion = model_info.get("champion") or {}
+horizon_years = champion.get("horizon_years", 5)
+
 st.caption(
-    f"Classification binaire : cette conduite va-t-elle rompre dans les **{HORIZON_YEARS} prochaines années** ? "
+    f"Classification binaire : cette conduite va-t-elle rompre dans les **{horizon_years} prochaines années** ? "
     "Le modèle champion est sélectionné par la Model Gate industrielle (PR-AUC + filtre de surapprentissage F1)."
 )
 
 st.info(
     "**Équipe MLOps :** Mohamed Houari | Peter El-Hadad | Jaime Alfonso Robledo Villacob | Morad Ait Abdellah"
 )
-
-model_info = fetch_model_info()
-champion = model_info.get("champion") or {}
 
 
 st.subheader("Modèle champion en production")
@@ -220,12 +221,12 @@ if predict_clicked:
 
             if label == 1:
                 st.error(
-                    f"**Classe prédite = 1** — rupture probable dans {HORIZON_YEARS} ans "
+                    f"**Classe prédite = 1** — rupture probable dans {horizon_years} ans "
                     f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
                 )
             else:
                 st.success(
-                    f"**Classe prédite = 0** — aucune rupture prédite dans {HORIZON_YEARS} ans "
+                    f"**Classe prédite = 0** — aucune rupture prédite dans {horizon_years} ans "
                     f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
                 )
 
