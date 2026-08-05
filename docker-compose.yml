@@ -35,11 +35,10 @@ services:
       - .:/app
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - PYTHONPATH=/app
     depends_on:
       mlflow:
         condition: service_healthy
-    command: >
-      python -m src.train
 
   api:
     build:

@@ -1,3 +1,5 @@
+
+```markdown
 # Water Main Break Risk Prediction (Kitchener–Waterloo) — End-to-End MLOps
 
 MLOps pipeline that predicts whether a water main will break within a fixed horizon, adapted from a prior aircraft-speed regression stack while preserving Docker Compose, MLflow, trainer, FastAPI, Streamlit, and an industrial Model Gate.
@@ -35,31 +37,79 @@ Core Python package under `src/`:
 
 ## 2. Quick start (Docker)
 
+Clone the repository and start the entire MLOps stack in the background:
+
 ```bash
-git clone https://github.com/Wuradclan/mlops-aircraft-speed-prediction.git
-cd mlops-aircraft-speed-prediction
+git clone [https://github.com/Wuradclan/water-main-break-prediction.git](https://github.com/Wuradclan/water-main-break-prediction.git)
+cd water-main-break-prediction
 
 docker compose up -d --build
+
 ```
 
-| Endpoint | URL |
-|----------|-----|
+| Endpoint | URL (Host PC) |
+| --- | --- |
 | MLflow UI | http://localhost:5050 |
 | API docs (Swagger) | http://localhost:8000/docs |
 | Streamlit UI | http://localhost:8501 |
 
-Train a model inside the trainer container, then reload the API champion:
+### Managing Services & Logs
 
 ```bash
-docker compose exec trainer python src/train.py --model_type logistic
-docker compose exec trainer python src/train.py --model_type xgboost --n_estimators 150 --max_depth 5
-# optional Optuna (maximizes PR-AUC with F1 overfit penalty)
-docker compose exec trainer python -B src/train.py --model_type xgboost --tune --n_trials 20
+# View real-time logs for all services (Press Ctrl+C to exit)
+docker compose logs -f
 
-curl -X POST http://localhost:8000/reload-model
+# View logs for a specific service
+docker compose logs -f api
+docker compose logs -f mlflow
+
 ```
 
-> **Note:** The GitHub repository name still reflects the original aircraft project. The application domain is water-main break risk.
+### Training Models
+
+Train a model inside an isolated, ephemeral trainer container. It will automatically connect to MLflow and clean itself up (`--rm`) when finished:
+
+```bash
+# Classic manual training (e.g., Logistic Regression, Random Forest)
+docker compose run --rm trainer python -m src.train --model_type logistic
+docker compose run --rm trainer python -m src.train --model_type random_forest
+
+# Optuna hyperparameter tuning (maximizes PR-AUC with F1 overfit penalty)
+docker compose run --rm trainer python -m src.train --model_type xgboost --tune --n_trials 15
+
+# H2O AutoML classification
+docker compose run --rm trainer python -m src.train --model_type h2o
+
+```
+
+### Reloading the API Champion
+
+After training a new best model, trigger the Model Gate to load the new champion into the live API.
+
+If running this from your **Host PC terminal**:
+
+```bash
+curl -X POST http://localhost:8000/reload-model
+
+```
+
+If running this from **inside a Docker container** (e.g., the trainer):
+
+```bash
+curl -X POST http://api:8000/reload-model
+
+```
+
+### Stopping the Environment
+
+```bash
+# Stop all services
+docker compose down
+
+# Stop all services and wipe volumes (removes local DB/runs)
+docker compose down -v
+
+```
 
 ---
 
@@ -86,6 +136,7 @@ uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 # Streamlit (separate terminal)
 export API_BASE_URL="http://localhost:8000"
 streamlit run app/streamlit_app.py --server.port 8501
+
 ```
 
 On macOS, XGBoost may need OpenMP (`brew install libomp`). Docker images already install `libomp`.
@@ -97,7 +148,7 @@ On macOS, XGBoost may need OpenMP (`brew install libomp`). Docker images already
 Pinned files (see `data/README.md` and `data/SHA256SUMS`):
 
 | Path | Description |
-|------|-------------|
+| --- | --- |
 | `data/raw/Water_Main_Breaks.csv` | Raw KW break incidents |
 | `data/processed/pipe_break_snapshots.csv` | Labeled historical snapshots |
 | `data/SHA256SUMS` | Content hashes for reproducibility |
@@ -105,7 +156,7 @@ Pinned files (see `data/README.md` and `data/SHA256SUMS`):
 ### Features used at inference / training
 
 | Feature | Meaning |
-|---------|---------|
+| --- | --- |
 | `material` | Pipe material (e.g. CI, DI, PVC) |
 | `diameter_mm` | Nominal diameter |
 | `install_year` | Installation year |
@@ -130,8 +181,8 @@ The KW open extract contains **only pipes that have broken at least once** (no c
 For each break at time `T` on a pipe:
 
 1. **Positive** snapshot at `t = T − H` → label `1` (break falls in `(t, t+H]`).
-2. **Negative** snapshots at `t = T − H − k` for `k ∈ {1,2,3,4,5}`, kept only if `(t, t+H]` contains **no** break  
-   (`k = 5` recovers the classic `T − 2H` negative).
+2. **Negative** snapshots at `t = T − H − k` for `k ∈ {1,2,3,4,5}`, kept only if `(t, t+H]` contains **no** break
+(`k = 5` recovers the classic `T − 2H` negative).
 
 Features are computed **as of `t` only** (age, prior breaks, material, diameter, install year).
 
@@ -145,10 +196,10 @@ It does **not** mean the pipe is permanently healthy, and pipes that never broke
 
 ### Temporal validation
 
-- **No random train/test split.**
-- Cutoff: `TEMPORAL_SPLIT_DATE = 2015-01-01` on `snapshot_date`.
-- Train: `snapshot_date < 2015-01-01` · Test: `snapshot_date ≥ 2015-01-01`.
-- Both partitions contain positives and negatives (denser negative offsets ensure this).
+* **No random train/test split.**
+* Cutoff: `TEMPORAL_SPLIT_DATE = 2015-01-01` on `snapshot_date`.
+* Train: `snapshot_date < 2015-01-01` · Test: `snapshot_date ≥ 2015-01-01`.
+* Both partitions contain positives and negatives (denser negative offsets ensure this).
 
 ---
 
@@ -164,17 +215,18 @@ Experiment name: `KW_Water_Main_Break_Risk`
 
 Train / stratified CV / temporal test:
 
-- **PR-AUC** (primary champion metric)
-- F1
-- ROC-AUC
-- recall@k (top 10% highest-risk predictions)
+* **PR-AUC** (primary champion metric)
+* F1
+* ROC-AUC
+* recall@k (top 10% highest-risk predictions)
 
 Models are logged with an explicit **MLflow signature** + `input_example` (pipe features).
 
 ### Optuna
 
 ```bash
-python -m src.train --model_type xgboost --tune --n_trials 20
+docker compose run --rm trainer python -m src.train --model_type xgboost --tune --n_trials 20
+
 ```
 
 Objective: **maximize** PR-AUC with an F1 overfit penalty when `(f1_train − f1_cv) > 0.30`.
@@ -197,6 +249,7 @@ Implemented in `src/model_gate.py`, used by the API at startup and `/reload-mode
 
 ```bash
 python -m src.model_gate
+
 ```
 
 ---
@@ -206,13 +259,15 @@ python -m src.model_gate
 Swagger: http://localhost:8000/docs
 
 | Method | Path | Purpose |
-|--------|------|---------|
+| --- | --- | --- |
 | `POST` | `/predict` | Class + probability |
 | `GET` | `/model-info` | Champion metadata |
 | `POST` | `/reload-model` | Re-run Model Gate |
 | `GET` | `/health` | Liveness / tracking URI |
 
 ### Example request
+
+From your **Host PC** (e.g., Mac/Windows terminal):
 
 ```bash
 curl -s http://localhost:8000/predict \
@@ -225,7 +280,10 @@ curl -s http://localhost:8000/predict \
     "prior_break_count": 3.0,
     "years_since_last_break": 0.75
   }'
+
 ```
+
+*(Note: If calling this API programmatically from another Docker container like Streamlit, use `http://api:8000/predict` instead).*
 
 ### Example response
 
@@ -240,9 +298,11 @@ curl -s http://localhost:8000/predict \
   "overfit_f1_gap": 0.0,
   "selection_mode": "champion"
 }
+
 ```
 
-Aircraft fields are rejected (`extra="forbid"`).  
+Aircraft fields are rejected (`extra="forbid"`).
+
 If `prior_break_count == 0`, send `"years_since_last_break": null` (or omit).
 
 MLflow URI resolution: `MLFLOW_TRACKING_URI` env → Docker `http://mlflow:5000` → local SQLite default.
@@ -251,17 +311,22 @@ MLflow URI resolution: `MLFLOW_TRACKING_URI` env → Docker `http://mlflow:5000`
 
 ## 9. Streamlit UI
 
-http://localhost:8501
+**Browser Access (Host PC):** http://localhost:8501
 
-- Pipe feature inputs aligned with `PipeBreakRequest`
-- Displays predicted class, break probability, and champion gate metrics
-- “Reload champion from MLflow” calls `/reload-model`
+* Pipe feature inputs aligned with `PipeBreakRequest`
+* Displays predicted class, break probability, and champion gate metrics
+* “Reload champion from MLflow” calls `/reload-model`
 
-Local override:
+**Docker internal routing:**
+Inside `docker-compose.yml`, Streamlit must point to the API container using its service name, not localhost:
+`API_BASE_URL="http://api:8000"`
+
+**Local override (Running without Docker):**
 
 ```bash
 export API_BASE_URL="http://localhost:8000"
 streamlit run app/streamlit_app.py
+
 ```
 
 ---
@@ -270,6 +335,7 @@ streamlit run app/streamlit_app.py
 
 ```bash
 pytest tests/ -q
+
 ```
 
 Coverage includes labeling (ASSETID 33550 worked example), preprocessing / temporal split class balance, training metrics helpers, Model Gate selection, and API schema/predict contracts.
@@ -281,6 +347,7 @@ Coverage includes labeling (ASSETID 33550 worked example), preprocessing / tempo
 ```bash
 docker compose down          # stop services
 docker compose down -v       # also wipe Compose volumes
+
 ```
 
 Git-ignored: `.venv/`, `mlruns/`, `mlflow.db`, `models/`, IDE metadata.
@@ -290,11 +357,10 @@ Git-ignored: `.venv/`, `mlruns/`, `mlflow.db`, `models/`, IDE metadata.
 ## 12. Known limitations & deferred work
 
 | Item | Status |
-|------|--------|
+| --- | --- |
 | Pipe length (`Water_Mains.Shape__Length`) | **Deferred** |
 | H2O AutoML classification path | **Deferred** |
 | Full never-broken inventory (true negatives) | Not in open KW breaks extract |
-| GitHub repo / image assets naming | Still partially aircraft-era |
 | Probability calibration / threshold tuning | Not production-tuned (default 0.5 for F1/class) |
 
 ---
@@ -302,3 +368,7 @@ Git-ignored: `.venv/`, `mlruns/`, `mlflow.db`, `models/`, IDE metadata.
 ## 13. Team
 
 Mohamed Houari · Peter El-Hadad · Jaime Alfonso Robledo Villacob · Morad Ait Abdellah
+
+```
+
+```
