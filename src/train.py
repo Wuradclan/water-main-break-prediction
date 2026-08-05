@@ -1,33 +1,8 @@
-"""
-Binary classification training for KW water-main break risk.
-
-Task: P(break within H years | features at snapshot date t)
-Primary metric: PR-AUC (champion ranking)
-Overfit monitor: F1 gap (train - cv / train - test), threshold from config
-Temporal split: preserved via prepare_pipe_break_data (no random split)
-
-Three training modes (mirrors the aircraft-speed-prediction pipeline):
-  A. Classic manual training  -> python -m src.train --model_type xgboost
-  B. Optuna hyperparameter search -> python -m src.train --model_type xgboost --tune --n_trials 30
-  C. H2O AutoML (classification) -> python -m src.train --model_type h2o
-"""
-
 from __future__ import annotations
 
 import argparse
 import os
 from pathlib import Path
-
-# macOS Homebrew OpenMP may live outside the default @rpath searched by XGBoost.
-_OMP_CANDIDATES = (
-    Path("/opt/homebrew/opt/libomp/lib"),
-    Path("/usr/local/opt/libomp/lib"),
-    Path("/Volumes/Evo/system/homebrew/opt/libomp/lib"),
-)
-for _omp in _OMP_CANDIDATES:
-    if (_omp / "libomp.dylib").exists():
-        os.environ["DYLD_LIBRARY_PATH"] = f"{_omp}{os.pathsep}{os.environ.get('DYLD_LIBRARY_PATH', '')}"
-        break
 
 import joblib
 import mlflow
@@ -38,18 +13,10 @@ import pandas as pd
 from category_encoders import TargetEncoder
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import (
-    ExtraTreesClassifier,
-    RandomForestClassifier,
-    StackingClassifier,
-)
+from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, StackingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import (
-    average_precision_score,
-    f1_score,
-    roc_auc_score,
-)
+from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_predict
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -99,21 +66,14 @@ except ModuleNotFoundError:
     )
     from schema import FEATURE_COLUMNS, TARGET_COLUMN
 
-
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODEL_OUTPUT_PATH = PROJECT_ROOT / "models" / "model.pkl"
-# Prefer an explicit env URI (Docker: http://mlflow:5000). Local default uses SQLite
-# because recent MLflow versions reject the legacy filesystem FileStore backend.
 _DEFAULT_SQLITE = (PROJECT_ROOT / "mlflow.db").resolve()
 DEFAULT_TRACKING_URI = os.getenv(
     "MLFLOW_TRACKING_URI",
     f"sqlite:///{_DEFAULT_SQLITE}",
 )
 
-
-# ---------------------------------------------------------------------------
-# Preprocessing + model factory (Scikit-Learn)
-# ---------------------------------------------------------------------------
 
 def build_preprocessor(feature_columns):
     numeric_features = [c for c in feature_columns if c in NUMERIC_COLUMNS]
@@ -146,9 +106,7 @@ def get_experiment_models(
     learning_rate=0.1,
     alpha=1.0,
 ):
-    """Return classification pipelines keyed by MLflow run name."""
     preprocessor = build_preprocessor(feature_columns)
-    # Map ridge/lasso strength: larger alpha => smaller C.
     c_value = float(1.0 / max(alpha, 1e-6))
 
     base_estimators = [
@@ -186,6 +144,7 @@ def get_experiment_models(
             LogisticRegression(C=c_value, max_iter=2000, solver="lbfgs"),
         ),
     ]
+
     cv_fixed = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     stacking_model = StackingClassifier(
         estimators=base_estimators,
@@ -205,23 +164,13 @@ def get_experiment_models(
         "run_02_ridge": Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
-                (
-                    "model",
-                    LogisticRegression(
-                        penalty="l2", C=c_value, max_iter=2000, solver="lbfgs"
-                    ),
-                ),
+                ("model", LogisticRegression(C=c_value, max_iter=2000, solver="lbfgs")),
             ]
         ),
         "run_05_lasso": Pipeline(
             steps=[
                 ("preprocessor", preprocessor),
-                (
-                    "model",
-                    LogisticRegression(
-                        penalty="l1", C=c_value, max_iter=3000, solver="saga"
-                    ),
-                ),
+                ("model", LogisticRegression(penalty="l1", C=c_value, max_iter=3000, solver="saga")),
             ]
         ),
         "run_03_rf": Pipeline(
@@ -310,12 +259,7 @@ def get_experiment_models(
     }
 
 
-# ---------------------------------------------------------------------------
-# Metrics helpers
-# ---------------------------------------------------------------------------
-
 def predict_proba_positive(pipeline, X) -> np.ndarray:
-    """Return P(y=1) for a fitted classifier pipeline."""
     if hasattr(pipeline, "predict_proba"):
         proba = pipeline.predict_proba(X)
         if proba.ndim == 2 and proba.shape[1] >= 2:
@@ -324,12 +268,10 @@ def predict_proba_positive(pipeline, X) -> np.ndarray:
     if hasattr(pipeline, "decision_function"):
         scores = np.asarray(pipeline.decision_function(X), dtype=float)
         return 1.0 / (1.0 + np.exp(-scores))
-    preds = np.asarray(pipeline.predict(X), dtype=float)
-    return preds
+    return np.asarray(pipeline.predict(X), dtype=float)
 
 
 def recall_at_k(y_true, y_proba, k_fraction: float = RECALL_AT_K_FRACTION) -> float:
-    """Recall among the top-k fraction highest-risk predictions."""
     y_true = np.asarray(y_true).astype(int)
     y_proba = np.asarray(y_proba, dtype=float)
     n_pos = int((y_true == 1).sum())
@@ -341,11 +283,9 @@ def recall_at_k(y_true, y_proba, k_fraction: float = RECALL_AT_K_FRACTION) -> fl
 
 
 def calculate_classification_metrics(y_true, y_pred, y_proba, prefix: str = "") -> dict:
-    """Compute F1 / ROC-AUC / PR-AUC / recall@k for one split."""
     y_true = np.asarray(y_true).astype(int)
     y_pred = np.asarray(y_pred).astype(int)
     y_proba = np.asarray(y_proba, dtype=float)
-
     return {
         f"{prefix}f1": float(f1_score(y_true, y_pred, zero_division=0)),
         f"{prefix}roc_auc": float(roc_auc_score(y_true, y_proba)),
@@ -355,12 +295,6 @@ def calculate_classification_metrics(y_true, y_pred, y_proba, prefix: str = "") 
 
 
 def build_optuna_score(pr_auc_cv: float, f1_train: float, f1_cv: float) -> tuple[float, float]:
-    """
-    Maximize PR-AUC with an F1 overfit penalty (anti-overfit philosophy).
-
-    overfit_gap = f1_train - f1_cv
-    If gap > threshold, shrink the objective proportional to the violation.
-    """
     overfit_gap = float(max(0.0, f1_train - f1_cv))
     if overfit_gap > OVERFIT_F1_GAP_THRESHOLD:
         score = pr_auc_cv / (1.0 + overfit_gap)
@@ -373,15 +307,9 @@ def make_input_example(X: pd.DataFrame, n: int = 3) -> pd.DataFrame:
     return X.head(n).copy()
 
 
-# ---------------------------------------------------------------------------
-# Logging helpers (sklearn + H2O)
-# ---------------------------------------------------------------------------
-
 def log_and_save_model(pipeline, metrics, model_path, model_type, X_example, params=None):
-    """Log metrics + sklearn model with explicit signature/input example."""
     if params:
         mlflow.log_params(params)
-
     mlflow.log_metrics(metrics)
 
     input_example = make_input_example(X_example)
@@ -416,14 +344,12 @@ def log_and_save_model(pipeline, metrics, model_path, model_type, X_example, par
 
 
 def log_and_save_h2o(best_model, metrics, model_type, params=None):
-    """Log + register an H2O model (mlflow.h2o flavor)."""
-    import mlflow.h2o  # local import: only required when --model_type h2o
+    import mlflow.h2o
 
     if params:
         mlflow.log_params(params)
     mlflow.log_metrics(metrics)
     mlflow.h2o.log_model(best_model, name="model")
-
     _print_summary(model_type, metrics)
 
 
@@ -447,7 +373,6 @@ def train_evaluate_and_log(
     params=None,
     is_optimized=False,
 ):
-    """Fit, evaluate (CV + train + temporal test), and log to MLflow."""
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     print(f"🔄 Stratified CV probabilities for {model_type}...")
@@ -511,12 +436,7 @@ def log_mlflow_data(params, metrics):
     mlflow.log_metrics(metrics)
 
 
-# ---------------------------------------------------------------------------
-# H2O AutoML (classification)
-# ---------------------------------------------------------------------------
-
 def train_h2o_automl(df: pd.DataFrame, target: str, feature_columns, max_runtime_secs: int = 120):
-    """Run H2O AutoML for binary classification on the pipe-break dataset."""
     import h2o
     from h2o.automl import H2OAutoML
 
@@ -524,7 +444,7 @@ def train_h2o_automl(df: pd.DataFrame, target: str, feature_columns, max_runtime
 
     keep_cols = list(feature_columns) + [target]
     hf = h2o.H2OFrame(df[keep_cols])
-    hf[target] = hf[target].asfactor()  # force binary classification, not regression
+    hf[target] = hf[target].asfactor()
 
     train, test = hf.split_frame(ratios=[0.8], seed=42)
     x_columns = [c for c in feature_columns]
@@ -540,7 +460,6 @@ def train_h2o_automl(df: pd.DataFrame, target: str, feature_columns, max_runtime
 
 
 def _h2o_perf_metrics(perf) -> dict:
-    """Extract classification metrics from an H2OModelMetrics object."""
     try:
         f1 = float(perf.F1()[0][1]) if perf.F1() else 0.0
     except Exception:
@@ -553,7 +472,6 @@ def _h2o_perf_metrics(perf) -> dict:
 
 
 def run_h2o_branch(max_runtime_secs: int = 120):
-    """H2O AutoML classification branch, mirrors the sklearn metric contract."""
     X_train, X_test, y_train, y_test, cleaned_df = prepare_pipe_break_data()
     feature_columns = X_train.columns.tolist()
 
@@ -613,10 +531,6 @@ def run_h2o_branch(max_runtime_secs: int = 120):
         )
 
 
-# ---------------------------------------------------------------------------
-# Dataset params (shared across all branches)
-# ---------------------------------------------------------------------------
-
 def _dataset_params() -> dict:
     params = {
         "horizon_years": HORIZON_YEARS,
@@ -635,10 +549,6 @@ def _dataset_params() -> dict:
         params["dataset_checksums_file"] = str(dataset_checksums_path)
     return params
 
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
 
 def main():
     parser = argparse.ArgumentParser(
@@ -683,16 +593,15 @@ def main():
     mlflow.set_tracking_uri(DEFAULT_TRACKING_URI)
     mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
-    # --- Branch A: H2O AutoML classification ---
     if args.model_type == "h2o":
         run_h2o_branch(max_runtime_secs=args.h2o_max_runtime_secs)
         return
 
-    # 1. Temporal data preparation (no random split).
     X_train, X_test, y_train, y_test, cleaned_df = prepare_pipe_break_data()
     for frame in (X_train, X_test):
         for col in frame.select_dtypes(include=["integer"]).columns:
             frame[col] = frame[col].astype(float)
+
     print(
         f"Temporal split @ {TEMPORAL_SPLIT_DATE}: "
         f"train={len(X_train)} test={len(X_test)} "
@@ -713,7 +622,6 @@ def main():
     }
     shared_params = _dataset_params()
 
-    # --- Branch B: Optuna hyperparameter search ---
     if args.tune:
         print(
             f"🎯 Optuna tuning for {args.model_type} "
@@ -724,16 +632,14 @@ def main():
 
             def objective(trial):
                 params = {
-                    "n_estimators": trial.suggest_int(
-                        "n_estimators", args.n_est_min, args.n_est_max, step=50
-                    ),
+                    "n_estimators": trial.suggest_int("n_estimators", args.n_est_min, args.n_est_max, step=50),
                     "max_depth": trial.suggest_int("max_depth", args.depth_min, args.depth_max),
                     "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
                     "alpha": trial.suggest_float("alpha", 0.1, 10.0, log=True),
                 }
-                trial_pipeline = get_experiment_models(
-                    X_train.columns.tolist(), **params
-                ).get(run_name_mapping[args.model_type])
+                trial_pipeline = get_experiment_models(X_train.columns.tolist(), **params).get(
+                    run_name_mapping[args.model_type]
+                )
 
                 with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
                     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
@@ -767,14 +673,10 @@ def main():
                         "roc_auc_test": test_metrics["roc_auc"],
                         "recall_at_k_test": test_metrics["recall_at_k"],
                         "overfit_f1_gap_cv": overfit_cv_gap,
-                        "overfit_f1_gap": float(
-                            max(0.0, train_metrics["f1"] - test_metrics["f1"])
-                        ),
+                        "overfit_f1_gap": float(max(0.0, train_metrics["f1"] - test_metrics["f1"])),
                         "optuna_score": optuna_score,
                     }
-                    log_mlflow_data(
-                        params={**params, "model_type": args.model_type}, metrics=trial_metrics
-                    )
+                    log_mlflow_data(params={**params, "model_type": args.model_type}, metrics=trial_metrics)
                     return optuna_score
 
             study = optuna.create_study(direction="maximize")
@@ -803,7 +705,6 @@ def main():
             )
         return
 
-    # --- Branch C: classic manual training ---
     models = get_experiment_models(
         X_train.columns.tolist(),
         n_estimators=args.n_estimators,

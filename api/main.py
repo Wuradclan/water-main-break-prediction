@@ -15,7 +15,7 @@ from typing import Optional
 import mlflow
 import mlflow.sklearn
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.model_gate import (
@@ -26,6 +26,7 @@ from src.model_gate import (
 )
 from src.schema import FEATURE_COLUMNS, INFERENCE_INPUT_COLUMNS, TARGET_COLUMN
 
+
 app = FastAPI(
     title="KW Water Main Break Risk API",
     description=(
@@ -35,7 +36,6 @@ app = FastAPI(
     version="0.5.0",
 )
 
-# Globals populated at startup / reload
 best_model = None
 champion_info: Optional[ChampionSelection] = None
 model_name_info = "Aucun modèle chargé"
@@ -85,8 +85,11 @@ class PipeBreakRequest(BaseModel):
 
 
 class PipeBreakPredictionResponse(BaseModel):
-    break_within_horizon: int = Field(..., description="Predicted class: 1=break within H years, 0=no")
+    break_within_horizon: int = Field(
+        ..., description="Predicted class: 1=break within H years, 0=no"
+    )
     probability: float = Field(..., ge=0.0, le=1.0, description="P(break_within_horizon = 1)")
+    threshold: float = Field(..., ge=0.0, le=1.0, description="Decision threshold used")
     model_name: str
     model_type: str
     run_id: str
@@ -98,7 +101,6 @@ class PipeBreakPredictionResponse(BaseModel):
 def _features_frame(payload: PipeBreakRequest) -> pd.DataFrame:
     row = payload.model_dump()
     df = pd.DataFrame([row], columns=INFERENCE_INPUT_COLUMNS)
-    # Align dtypes with the logged MLflow signature (doubles).
     for col in FEATURE_COLUMNS:
         if col == "material":
             continue
@@ -117,7 +119,6 @@ def _predict_proba_positive(model, frame: pd.DataFrame) -> float:
 
         score = float(model.decision_function(frame)[0])
         return 1.0 / (1.0 + math.exp(-score))
-    # Last resort: hard label as probability proxy.
     return float(model.predict(frame)[0])
 
 
@@ -133,7 +134,6 @@ def load_best_model_from_mlflow() -> None:
         selection = select_champion_run(tracking_uri=tracking_uri)
         print(explain_selection(selection))
 
-        # Prefer the sklearn flavor so predict_proba remains available.
         model = mlflow.sklearn.load_model(selection.model_uri)
 
         best_model = model
@@ -148,7 +148,6 @@ def load_best_model_from_mlflow() -> None:
         traceback.print_exc()
 
 
-# Load champion at startup
 load_best_model_from_mlflow()
 
 
@@ -163,7 +162,10 @@ def health():
 
 
 @app.post("/predict", response_model=PipeBreakPredictionResponse)
-async def predict(payload: PipeBreakRequest):
+async def predict(
+    payload: PipeBreakRequest,
+    threshold: float = Query(0.5, ge=0.0, le=1.0),
+):
     if best_model is None or champion_info is None:
         raise HTTPException(
             status_code=503,
@@ -184,11 +186,12 @@ async def predict(payload: PipeBreakRequest):
 
         frame = _features_frame(payload)
         probability = _predict_proba_positive(best_model, frame)
-        label = int(best_model.predict(frame)[0])
+        label = int(probability >= threshold)
 
         return PipeBreakPredictionResponse(
             break_within_horizon=label,
             probability=probability,
+            threshold=threshold,
             model_name=model_name_info,
             model_type=champion_info.model_type,
             run_id=champion_info.run_id,
