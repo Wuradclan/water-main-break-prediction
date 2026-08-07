@@ -71,3 +71,4 @@ services:
         condition: service_started
     volumes:
       - .:/app
+      - /var/run/docker.sock:/var/run/docker.sock
