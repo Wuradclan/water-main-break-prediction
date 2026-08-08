@@ -14,6 +14,7 @@ mlflow.db
 __pycache__/
 *.pyc
 logs/
+training_jobs/
 .DS_Store
 
 # Modèles binaires
@@ -21,3 +22,5 @@ logs/
 models/
 
 /h2o_feature_importance.csv
+mlruns.mlflow3-backup/
+mlflow.db.mlflow3-backup

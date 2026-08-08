@@ -10,7 +10,9 @@ Phase 2 scope
 - Enforce temporal leakage protections (no post-break / repair fields).
 - Provide a strict time-based train/test split (no random splitting).
 
-Length join and training/API/UI wiring are intentionally out of scope here.
+Horizon labels (1 / 2 / 5 years) are produced in labeling.generate_snapshot_dataset
+from raw break events — never recomputed from snapshot rows (which have no
+break_date / incident_date column).
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ import pandas as pd
 
 try:
     from src.config import (
+        HORIZON_YEARS,
         TEMPORAL_SPLIT_DATE,
         processed_snapshots_path,
         raw_breaks_path,
@@ -38,6 +41,7 @@ try:
     )
 except ModuleNotFoundError:
     from config import (
+        HORIZON_YEARS,
         TEMPORAL_SPLIT_DATE,
         processed_snapshots_path,
         raw_breaks_path,
@@ -52,18 +56,21 @@ except ModuleNotFoundError:
         TARGET_COLUMN,
     )
 
-# Public aliases kept for later training-phase imports.
+SUPPORTED_HORIZON_YEARS = frozenset({1, 2, 5})
+
+
 DEFAULT_TARGET_COLUMN = TARGET_COLUMN
 DATA_COLUMNS = FEATURE_COLUMNS
 
-# Explicit denylist mirrored at the preprocessing boundary.
 PREDICTION_EXCLUDED_COLUMNS = list(LEAKAGE_FORBIDDEN_COLUMNS) + [
     "asset_id",
     "snapshot_date",
     "street",
     "snapshot_origin",
     "horizon_years",
-    "length_m",  # deferred; must not sneak in until a later phase
+    "length_m",
+    "break_date",
+    "incident_date",
 ]
 
 
@@ -99,7 +106,6 @@ def assert_no_temporal_leakage(df: pd.DataFrame) -> None:
         )
 
     unexpected = [c for c in df.columns if c not in set(FEATURE_COLUMNS + [TARGET_COLUMN] + META_COLUMNS)]
-    # Allow only known contract columns through this gate.
     if unexpected:
         raise ValueError(
             "Unexpected columns outside the Phase-2 data contract: "
@@ -111,7 +117,6 @@ def _years_since_last_break_for_row(
     snapshot_date: pd.Timestamp,
     prior_dates: list[pd.Timestamp],
 ) -> float:
-    """Return years since the latest break strictly before snapshot_date, else NaN."""
     prior = [d for d in prior_dates if d < snapshot_date]
     if not prior:
         return np.nan
@@ -125,20 +130,26 @@ def add_years_since_last_break(
 ) -> pd.DataFrame:
     """
     Attach years_since_last_break using only breaks with incident_date < snapshot_date.
-
-    This recomputes the feature from raw events so it cannot accidentally use the
-    label-defining future break.
     """
     if events is None:
         events = load_break_events(raw_breaks_path)
 
+    events = events.copy()
+    if "incident_date" not in events.columns:
+        raise ValueError("load_break_events must return an 'incident_date' column.")
+    if "asset_id" not in events.columns:
+        raise ValueError("load_break_events must return an 'asset_id' column.")
+
+    events["incident_date"] = pd.to_datetime(events["incident_date"], errors="coerce").dt.normalize()
+    events["asset_id"] = events["asset_id"].astype(str)
+
     breaks_by_asset = {
-        str(asset_id): sorted(group["incident_date"].tolist())
+        str(asset_id): sorted(group["incident_date"].dropna().tolist())
         for asset_id, group in events.groupby("asset_id", sort=False)
     }
 
     out = snapshots.copy()
-    out["snapshot_date"] = pd.to_datetime(out["snapshot_date"]).dt.normalize()
+    out["snapshot_date"] = pd.to_datetime(out["snapshot_date"], errors="coerce").dt.normalize()
     out["asset_id"] = out["asset_id"].astype(str)
 
     values = []
@@ -177,31 +188,93 @@ def validate_time_aware_features(df: pd.DataFrame) -> None:
             )
 
 
-def load_snapshot_data(csv_path=None, regenerate_if_missing: bool = True) -> pd.DataFrame:
-    """Load Phase-1 snapshots, optionally regenerating them if the file is absent."""
+def _validate_horizon_years(horizon_years: int) -> int:
+    horizon = int(horizon_years)
+    if horizon not in SUPPORTED_HORIZON_YEARS:
+        raise ValueError(
+            f"horizon_years must be one of {sorted(SUPPORTED_HORIZON_YEARS)}; got {horizon_years!r}."
+        )
+    return horizon
+
+
+def _snapshot_horizon_matches(df: pd.DataFrame, horizon_years: int) -> bool:
+    if "horizon_years" not in df.columns or df.empty:
+        return False
+    values = pd.to_numeric(df["horizon_years"], errors="coerce")
+    if values.isna().any():
+        return False
+    return bool((values.astype(int) == int(horizon_years)).all())
+
+
+def load_snapshot_data(
+    csv_path=None,
+    regenerate_if_missing: bool = True,
+    horizon_years: int = HORIZON_YEARS,
+) -> pd.DataFrame:
+    """
+    Load Phase-1 snapshots for the requested horizon.
+
+    The binary target is created in labeling from raw break events. A cached CSV
+    is reused only when its horizon_years matches; otherwise snapshots are
+    regenerated in memory (the on-disk cache is not overwritten on mismatch).
+    """
+    horizon_years = _validate_horizon_years(horizon_years)
     dataset_path = resolve_dataset_path(csv_path)
+
     if dataset_path.exists():
         df = pd.read_csv(dataset_path)
-    elif regenerate_if_missing:
-        df = generate_snapshot_dataset()
-    else:
+        df["snapshot_date"] = pd.to_datetime(df["snapshot_date"], errors="coerce").dt.normalize()
+        df["asset_id"] = df["asset_id"].astype(str)
+        if _snapshot_horizon_matches(df, horizon_years):
+            return df
+        if not regenerate_if_missing:
+            raise ValueError(
+                f"Cached snapshots at {dataset_path} do not match "
+                f"horizon_years={horizon_years}."
+            )
+    elif not regenerate_if_missing:
         raise FileNotFoundError(f"Snapshot dataset not found: {dataset_path}")
 
-    df["snapshot_date"] = pd.to_datetime(df["snapshot_date"]).dt.normalize()
+    df = generate_snapshot_dataset(horizon_years=horizon_years)
+    df["snapshot_date"] = pd.to_datetime(df["snapshot_date"], errors="coerce").dt.normalize()
     df["asset_id"] = df["asset_id"].astype(str)
+
+    # Persist only when creating the missing canonical cache for this horizon.
+    if not dataset_path.exists():
+        dataset_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(dataset_path, index=False)
+
     return df
 
 
-def engineer_pipe_features(snapshots: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+def engineer_pipe_features(
+    snapshots: Optional[pd.DataFrame] = None,
+    horizon_years: int = HORIZON_YEARS,
+) -> pd.DataFrame:
     """
     Build the cleaned modeling table with Phase-2 features only.
 
+    Expects TARGET_COLUMN to already exist on snapshots (from labeling).
     Returns a frame containing META_COLUMNS + FEATURE_COLUMNS + TARGET_COLUMN.
     """
+    horizon_years = _validate_horizon_years(horizon_years)
+
     if snapshots is None:
-        snapshots = load_snapshot_data()
+        snapshots = load_snapshot_data(horizon_years=horizon_years)
+    elif not _snapshot_horizon_matches(snapshots, horizon_years):
+        raise ValueError(
+            f"Provided snapshots do not match horizon_years={horizon_years}. "
+            "Regenerate via labeling.generate_snapshot_dataset(horizon_years=...)."
+        )
+
+    if TARGET_COLUMN not in snapshots.columns:
+        raise ValueError(
+            f"Snapshots must already contain {TARGET_COLUMN!r} from labeling; "
+            "horizon labels are not recomputed in preprocessing."
+        )
 
     df = add_years_since_last_break(snapshots)
+    df["horizon_years"] = int(horizon_years)
 
     # Physical / categorical cleaning
     df["material"] = _normalize_material(df["material"])
@@ -212,13 +285,11 @@ def engineer_pipe_features(snapshots: Optional[pd.DataFrame] = None) -> pd.DataF
     df["years_since_last_break"] = pd.to_numeric(df["years_since_last_break"], errors="coerce")
     df[TARGET_COLUMN] = pd.to_numeric(df[TARGET_COLUMN], errors="coerce").astype("Int64")
 
-    # Drop rows that cannot support the physical feature set.
     required = ["material", "diameter_mm", "install_year", "age_years", TARGET_COLUMN, "snapshot_date"]
     df = df.dropna(subset=required).copy()
     df[TARGET_COLUMN] = df[TARGET_COLUMN].astype(int)
 
-    # Recompute age from install_year at snapshot_date to keep the feature
-    # strictly time-consistent (install_year is known at t; age is derived).
+    # Recompute age from install_year at snapshot_date
     df["age_years"] = df["snapshot_date"].dt.year - df["install_year"]
 
     keep_cols = [c for c in META_COLUMNS + FEATURE_COLUMNS + [TARGET_COLUMN] if c in df.columns]
@@ -227,7 +298,6 @@ def engineer_pipe_features(snapshots: Optional[pd.DataFrame] = None) -> pd.DataF
     assert_no_temporal_leakage(modeled)
     validate_time_aware_features(modeled)
 
-    # Final feature-set check: only approved modeling columns will be exposed via X.
     missing_features = [c for c in FEATURE_COLUMNS if c not in modeled.columns]
     if missing_features:
         raise ValueError(f"Missing required feature columns: {missing_features}")
@@ -277,7 +347,6 @@ def temporal_train_test_split(
 def _split_xy(df: pd.DataFrame):
     X = df[FEATURE_COLUMNS].copy()
     y = df[TARGET_COLUMN].copy()
-    # Defense in depth: never return meta/target leakage through X.
     assert_no_temporal_leakage(pd.concat([X, y.rename(TARGET_COLUMN)], axis=1))
     return X, y
 
@@ -286,12 +355,15 @@ def prepare_pipe_break_data(
     csv_path=None,
     target_column: str = DEFAULT_TARGET_COLUMN,
     cutoff: Optional[str] = None,
+    horizon_years: int = HORIZON_YEARS,
 ):
     """
     End-to-end Phase-2 preparation:
 
     returns X_train, X_test, y_train, y_test, cleaned_df
     using a strict temporal cutoff (never random splitting).
+
+    Labels for ``horizon_years`` are generated in labeling from raw break events.
     """
     if target_column != TARGET_COLUMN:
         raise ValueError(
@@ -299,7 +371,11 @@ def prepare_pipe_break_data(
             f"Phase 2 classification target is {TARGET_COLUMN!r}."
         )
 
-    cleaned_df = engineer_pipe_features(load_snapshot_data(csv_path))
+    horizon_years = _validate_horizon_years(horizon_years)
+    cleaned_df = engineer_pipe_features(
+        load_snapshot_data(csv_path, horizon_years=horizon_years),
+        horizon_years=horizon_years,
+    )
     train_df, test_df = temporal_train_test_split(cleaned_df, cutoff=cutoff)
 
     X_train, y_train = _split_xy(train_df)
@@ -307,8 +383,6 @@ def prepare_pipe_break_data(
     return X_train, X_test, y_train, y_test, cleaned_df
 
 
-# Backward-compatible name used by the legacy training entrypoint.
-# Phase 3 will switch train.py fully to the pipe-break API.
 def clean_airplane_data(*args, **kwargs):
     raise RuntimeError(
         "Aircraft preprocessing has been removed. "

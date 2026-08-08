@@ -9,7 +9,7 @@ xgboost
 h2o
 
 # MLOps & Tracking
-mlflow
+mlflow==2.16.2
 cloudpickle
 skops
 optuna
