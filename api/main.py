@@ -5,11 +5,20 @@ Phase 5:
 - Request schema = pipe physical / time-aware features (not aircraft)
 - Champion selection via src.model_gate (PR-AUC + F1 overfit gate)
 - Response = class label + break probability
+
+Phase 6 (UI entraînement) :
+- Jobs d'entraînement asynchrones via docker exec + thread daemon
+- Endpoints /start-training et /training-status/{job_id}
 """
 
 from __future__ import annotations
 
+import subprocess
+import threading
 import traceback
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import mlflow
@@ -40,6 +49,96 @@ app = FastAPI(
 best_model = None
 champion_info: Optional[ChampionSelection] = None
 model_name_info = "Aucun modèle chargé"
+
+# ---------------------------------------------------------------------------
+# Jobs d'entraînement asynchrones (un seul à la fois)
+# ---------------------------------------------------------------------------
+TRAINER_CONTAINER = "bris-aqueduc-trainer"
+TRAINING_JOBS_DIR = Path("/app/training_jobs")
+TRAINING_JOBS_DIR.mkdir(parents=True, exist_ok=True)
+
+# job_id -> métadonnées (status, timestamps, result, etc.)
+jobs_status: dict[str, dict] = {}
+_jobs_lock = threading.Lock()
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _tail_log_file(log_path: Path, n_lines: int = 250) -> str:
+    """Retourne les ~n_lines dernières lignes d'un fichier de log."""
+    if not log_path.exists():
+        return ""
+    try:
+        with log_path.open("r", encoding="utf-8", errors="replace") as handle:
+            lines = handle.readlines()
+        return "".join(lines[-n_lines:])
+    except OSError as exc:
+        return f"[ERREUR] Impossible de lire le log : {exc}\n"
+
+
+def _run_training_job(job_id: str, cmd: list[str]) -> None:
+    """Exécute la commande d'entraînement et met à jour jobs_status."""
+    log_path = TRAINING_JOBS_DIR / f"{job_id}.log"
+    with _jobs_lock:
+        jobs_status[job_id]["status"] = "running"
+        jobs_status[job_id]["started_at"] = _utc_now_iso()
+
+    try:
+        with log_path.open("w", encoding="utf-8") as log_file:
+            log_file.write(f"$ {' '.join(cmd)}\n")
+            log_file.flush()
+            process = subprocess.Popen(
+                cmd,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+            return_code = process.wait()
+    except FileNotFoundError as exc:
+        with _jobs_lock:
+            jobs_status[job_id]["status"] = "failed"
+            jobs_status[job_id]["finished_at"] = _utc_now_iso()
+            jobs_status[job_id]["return_code"] = -1
+            jobs_status[job_id]["result"] = None
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(
+                f"\n[ERREUR] Commande Docker introuvable dans le conteneur API : {exc}\n"
+            )
+        return
+    except Exception as exc:
+        with _jobs_lock:
+            jobs_status[job_id]["status"] = "failed"
+            jobs_status[job_id]["finished_at"] = _utc_now_iso()
+            jobs_status[job_id]["return_code"] = -1
+            jobs_status[job_id]["result"] = None
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(f"\n[ERREUR] Échec du lancement de l'entraînement : {exc}\n")
+        return
+
+    finished_at = _utc_now_iso()
+    status = "completed" if return_code == 0 else "failed"
+    result = None
+
+    if status == "completed":
+        try:
+            selection = select_champion_run()
+            result = selection.to_dict()
+            with log_path.open("a", encoding="utf-8") as log_file:
+                log_file.write(f"\n[Champion] {selection.summary()}\n")
+        except Exception as exc:
+            with log_path.open("a", encoding="utf-8") as log_file:
+                log_file.write(
+                    f"\n[AVERTISSEMENT] Entraînement OK mais sélection champion échouée : {exc}\n"
+                )
+
+    with _jobs_lock:
+        jobs_status[job_id]["status"] = status
+        jobs_status[job_id]["finished_at"] = finished_at
+        jobs_status[job_id]["return_code"] = return_code
+        jobs_status[job_id]["result"] = result
 
 
 class PipeBreakRequest(BaseModel):
@@ -255,3 +354,126 @@ def reload_model():
         }
     except Exception as exc:
         return {"status": "error", "message": str(exc)}
+
+
+@app.post("/start-training")
+def start_training(
+    model_type: str = Query(
+        ...,
+        description="Type de modèle (logistic, xgboost, h2o, ...)",
+    ),
+    tune: bool = Query(False, description="Activer Optuna"),
+    n_trials: int = Query(15, ge=1, le=200, description="Nombre d'essais Optuna"),
+    horizon_years: int = Query(5, description="Horizon de prédiction (1, 2 ou 5 ans)"),
+):
+    """
+    Lance un entraînement en arrière-plan dans le conteneur trainer.
+    Répond immédiatement avec un job_id (ne bloque pas).
+    """
+    allowed_models = {
+        "logistic",
+        "ridge",
+        "lasso",
+        "random_forest",
+        "xgboost",
+        "extra_trees",
+        "knn",
+        "svc",
+        "mlp",
+        "stacking",
+        "h2o",
+    }
+    if model_type not in allowed_models:
+        raise HTTPException(
+            status_code=422,
+            detail=f"model_type invalide : {model_type!r}. Choix : {sorted(allowed_models)}",
+        )
+    if horizon_years not in {1, 2, 5}:
+        raise HTTPException(
+            status_code=422,
+            detail="horizon_years doit être 1, 2 ou 5.",
+        )
+
+    with _jobs_lock:
+        running = [
+            jid
+            for jid, meta in jobs_status.items()
+            if meta.get("status") == "running"
+        ]
+        if running:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"Un entraînement est déjà en cours (job_id={running[0]}). "
+                    "Attends sa fin avant d'en lancer un autre."
+                ),
+            )
+
+        job_id = str(uuid.uuid4())[:8]
+        cmd = [
+            "docker",
+            "exec",
+            TRAINER_CONTAINER,
+            "python",
+            "-m",
+            "src.train",
+            "--model_type",
+            model_type,
+            "--horizon_years",
+            str(horizon_years),
+        ]
+        if tune and model_type != "h2o":
+            cmd.extend(["--tune", "--n_trials", str(n_trials)])
+
+        jobs_status[job_id] = {
+            "job_id": job_id,
+            "status": "pending",
+            "model_type": model_type,
+            "tune": tune and model_type != "h2o",
+            "n_trials": n_trials if (tune and model_type != "h2o") else None,
+            "horizon_years": horizon_years,
+            "started_at": None,
+            "finished_at": None,
+            "return_code": None,
+            "result": None,
+            "command": cmd,
+        }
+
+    thread = threading.Thread(
+        target=_run_training_job,
+        args=(job_id, cmd),
+        daemon=True,
+        name=f"training-{job_id}",
+    )
+    thread.start()
+
+    return {"job_id": job_id, "status": "pending"}
+
+
+@app.get("/training-status/{job_id}")
+def training_status(job_id: str):
+    """Retourne l'état d'un job d'entraînement et la queue des logs."""
+    with _jobs_lock:
+        meta = jobs_status.get(job_id)
+        if meta is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Aucun job d'entraînement trouvé pour job_id={job_id!r}.",
+            )
+        snapshot = dict(meta)
+
+    log_tail = _tail_log_file(TRAINING_JOBS_DIR / f"{job_id}.log", n_lines=250)
+
+    return {
+        "job_id": job_id,
+        "status": snapshot.get("status"),
+        "model_type": snapshot.get("model_type"),
+        "tune": snapshot.get("tune"),
+        "n_trials": snapshot.get("n_trials"),
+        "horizon_years": snapshot.get("horizon_years"),
+        "started_at": snapshot.get("started_at"),
+        "finished_at": snapshot.get("finished_at"),
+        "return_code": snapshot.get("return_code"),
+        "log_tail": log_tail,
+        "result": snapshot.get("result"),
+    }

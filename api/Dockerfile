@@ -1,8 +1,11 @@
 # api/Dockerfile
 FROM python:3.11-slim
 
-# On installe uniquement libomp-dev (requis par XGBoost sur certains systèmes)
-RUN apt-get update && apt-get install -y libomp-dev default-jre && rm -rf /var/lib/apt/lists/*
+# docker.io : l'API lance les entraînements via `docker exec` sur le trainer
+# libomp-dev (XGBoost) + JRE (chargement H2O éventuel)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends docker.io docker-cli libomp-dev default-jre && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

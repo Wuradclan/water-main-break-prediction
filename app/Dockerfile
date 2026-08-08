@@ -1,11 +1,7 @@
 FROM python:3.11-slim
 WORKDIR /app
 
-# --- Ajout : CLI Docker pour piloter le conteneur trainer depuis Streamlit ---
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends docker.io docker-compose-plugin && \
-    rm -rf /var/lib/apt/lists/*
-# -----------------------------------------------------------------------------
+# L'entraînement est déclenché via FastAPI (pas de socket Docker ici).
 
 COPY requirements.txt .
 #RUN pip install -r requirements.txt

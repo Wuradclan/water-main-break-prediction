@@ -36,6 +36,7 @@ services:
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
     depends_on:
       mlflow:
         condition: service_healthy
@@ -50,6 +51,7 @@ services:
       - "8000:8000"
     environment:
       - MLFLOW_TRACKING_URI=http://bris-aqueduc-mlflow:5000
+      - PYTHONUNBUFFERED=1
     depends_on:
       mlflow:
         condition: service_healthy
@@ -58,6 +60,8 @@ services:
     volumes:
       - .:/app
       - ./mlruns:/mlruns
+      # Socket Docker : seul l'API peut lancer docker exec (pas le frontend)
+      - /var/run/docker.sock:/var/run/docker.sock
 
   frontend:
     build:
@@ -66,9 +70,10 @@ services:
     container_name: bris-aqueduc-frontend
     ports:
       - "8501:8501"
+    environment:
+      - API_BASE_URL=http://api:8000
     depends_on:
       api:
         condition: service_started
     volumes:
       - .:/app
-      - /var/run/docker.sock:/var/run/docker.sock

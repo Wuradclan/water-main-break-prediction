@@ -202,12 +202,20 @@ def make_input_example(X: pd.DataFrame, n: int = 3) -> pd.DataFrame:
 
 
 def _print_summary(model_type, metrics):
-    print(f"\n✅ Model {model_type} finished.")
-    print(f"🟣 PR-AUC Train: {metrics.get('pr_auc_train', 0):.4f}")
-    print(f"🟡 PR-AUC CV:    {metrics.get('pr_auc_cv', 0):.4f}")
-    print(f"🟢 PR-AUC Test:  {metrics.get('pr_auc_test', 0):.4f}")
-    print(f"🔵 F1 Train/Test: {metrics.get('f1_train', 0):.4f} / {metrics.get('f1_test', 0):.4f}")
-    print(f"🟠 Overfit F1 gap: {metrics.get('overfit_f1_gap', 0):.4f}")
+    print(f"\n✅ Model {model_type} finished.", flush=True)
+    print(f"🟣 PR-AUC Train: {metrics.get('pr_auc_train', 0):.4f}", flush=True)
+    print(f"🟡 PR-AUC CV:    {metrics.get('pr_auc_cv', 0):.4f}", flush=True)
+    print(f"🟢 PR-AUC Test:  {metrics.get('pr_auc_test', 0):.4f}", flush=True)
+    print(
+        f"🔵 F1 Train/Test: {metrics.get('f1_train', 0):.4f} / {metrics.get('f1_test', 0):.4f}",
+        flush=True,
+    )
+    print(f"🟠 Overfit F1 gap: {metrics.get('overfit_f1_gap', 0):.4f}", flush=True)
+    print(
+        f"[Résultat] PR-AUC test={metrics.get('pr_auc_test', 0):.4f} | "
+        f"F1 train/test={metrics.get('f1_train', 0):.4f}/{metrics.get('f1_test', 0):.4f}",
+        flush=True,
+    )
 
 
 def log_and_save_model(pipeline, metrics, model_path, model_type, X_example, params=None):
@@ -248,6 +256,10 @@ def log_and_save_model(pipeline, metrics, model_path, model_type, X_example, par
         input_example=input_example,
     )
 
+    active = mlflow.active_run()
+    if active is not None:
+        print(f"[MLflow] Run enregistré : {active.info.run_id}", flush=True)
+
     model_path = Path(model_path)
     model_path.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(pipeline, model_path)
@@ -270,6 +282,9 @@ def log_and_save_h2o(best_model, metrics, leader_model_type, params=None):
     mlflow.set_tag("leader_model_id", best_model.model_id)
     mlflow.set_tag("leader_model_type", leader_model_type)
     mlflow.h2o.log_model(best_model, artifact_path="model")
+    active = mlflow.active_run()
+    if active is not None:
+        print(f"[MLflow] Run enregistré : {active.info.run_id}", flush=True)
     _print_summary(f"H2O_{leader_model_type}", metrics)
 
 
@@ -286,7 +301,8 @@ def train_evaluate_and_log(
 ):
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
-    print(f"🔄 Stratified CV probabilities for {model_type}...")
+    print(f"[Étape] Validation croisée stratifiée pour {model_type}...", flush=True)
+    print(f"🔄 Stratified CV probabilities for {model_type}...", flush=True)
     cv_proba = cross_val_predict(pipeline, X_train, y_train, cv=cv, n_jobs=-1, method="predict_proba")[:, 1]
     cv_pred = (cv_proba >= 0.5).astype(int)
     cv_metrics = calculate_classification_metrics(y_train, cv_pred, cv_proba)
@@ -391,8 +407,14 @@ def _h2o_perf_metrics(perf) -> dict:
 
 
 def run_h2o_branch(max_runtime_secs: int = 120, horizon_years: int = HORIZON_YEARS):
+    print("[Étape] Chargement des données...", flush=True)
+    print("[Modèle] h2o", flush=True)
     X_train, X_test, y_train, y_test, cleaned_df = prepare_pipe_break_data(horizon_years=horizon_years)
     feature_columns = X_train.columns.tolist()
+    print(
+        f"[Étape] Split temporel terminé : train={len(X_train)}, test={len(X_test)}",
+        flush=True,
+    )
 
     full_df = pd.concat(
         [
@@ -402,7 +424,10 @@ def run_h2o_branch(max_runtime_secs: int = 120, horizon_years: int = HORIZON_YEA
         axis=0,
     )
 
-    print(f"🚀 Launching H2O AutoML (classification, horizon={horizon_years}y)...")
+    print(
+        f"🚀 Launching H2O AutoML (classification, horizon={horizon_years}y)...",
+        flush=True,
+    )
     with mlflow.start_run(run_name="run_h2o_automl"):
         mlflow.log_params(
             {
@@ -420,8 +445,8 @@ def run_h2o_branch(max_runtime_secs: int = 120, horizon_years: int = HORIZON_YEA
         perf_cv = best_model.model_performance(xval=True)
 
         algo_name = best_model.algo
-        print("\n📊 === H2O LEADERBOARD ===")
-        print(aml_obj.leaderboard.as_data_frame())
+        print("\n📊 === H2O LEADERBOARD ===", flush=True)
+        print(aml_obj.leaderboard.as_data_frame(), flush=True)
 
         metrics_train = _h2o_perf_metrics(perf_train)
         metrics_cv = _h2o_perf_metrics(perf_cv)
@@ -504,14 +529,22 @@ def main():
         run_h2o_branch(max_runtime_secs=args.h2o_max_runtime_secs, horizon_years=args.horizon_years)
         return
 
+    print("[Étape] Chargement des données...", flush=True)
+    print(f"[Modèle] {args.model_type}", flush=True)
     X_train, X_test, y_train, y_test, cleaned_df = prepare_pipe_break_data(horizon_years=args.horizon_years)
     for frame in (X_train, X_test):
         for col in frame.select_dtypes(include=["integer"]).columns:
             frame[col] = frame[col].astype(float)
 
     print(
+        f"[Étape] Split temporel terminé : train={len(X_train)}, test={len(X_test)}",
+        flush=True,
+    )
+    print(
         f"Horizon={args.horizon_years}y | Temporal split @ {TEMPORAL_SPLIT_DATE}: "
-        f"train={len(X_train)} test={len(X_test)} (pos_train={int(y_train.sum())}, pos_test={int(y_test.sum())})"
+        f"train={len(X_train)} test={len(X_test)} "
+        f"(pos_train={int(y_train.sum())}, pos_test={int(y_test.sum())})",
+        flush=True,
     )
 
     run_name_mapping = {
@@ -529,7 +562,12 @@ def main():
     shared_params = _dataset_params(horizon_years=args.horizon_years)
 
     if args.tune:
-        print(f"🎯 Optuna tuning for {args.model_type} ({args.n_trials} trials, maximize PR-AUC with F1 overfit penalty)...")
+        print(
+            f"🎯 Optuna tuning for {args.model_type} "
+            f"({args.n_trials} trials, maximize PR-AUC with F1 overfit penalty)...",
+            flush=True,
+        )
+        print(f"[Optuna] Démarrage de l'étude ({args.n_trials} essais)...", flush=True)
         with mlflow.start_run(run_name=f"Optuna_Study_{args.model_type}"):
             mlflow.log_params({**shared_params, "model_type": args.model_type, "tune": True})
 
@@ -576,9 +614,21 @@ def main():
                     log_mlflow_data(params={**params, "model_type": args.model_type}, metrics=trial_metrics)
                     return optuna_score
 
+            def _optuna_progress_callback(study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
+                best = study.best_value if study.best_trial is not None else float("nan")
+                print(
+                    f"[Optuna] Essai {trial.number + 1}/{args.n_trials} | meilleur score={best:.4f}",
+                    flush=True,
+                )
+
             study = optuna.create_study(direction="maximize")
-            study.optimize(objective, n_trials=args.n_trials)
-            print(f"\n🏆 Best params: {study.best_params}")
+            study.optimize(
+                objective,
+                n_trials=args.n_trials,
+                callbacks=[_optuna_progress_callback],
+            )
+            print(f"\n🏆 Best params: {study.best_params}", flush=True)
+            print(f"[Optuna] Meilleur score final={study.best_value:.4f}", flush=True)
 
             final_params = {**study.best_params, "model_type": args.model_type, **shared_params}
             champion = get_experiment_models(
@@ -589,6 +639,7 @@ def main():
                 alpha=study.best_params.get("alpha", args.alpha),
             ).get(run_name_mapping[args.model_type])
 
+            print("[Étape] Entraînement final avec les meilleurs hyperparamètres...", flush=True)
             train_evaluate_and_log(
                 champion,
                 X_train,
@@ -610,6 +661,7 @@ def main():
         alpha=args.alpha,
     )
     pipeline = models[run_name_mapping[args.model_type]]
+    print("[Étape] Entraînement du pipeline...", flush=True)
     with mlflow.start_run(run_name=run_name_mapping[args.model_type]):
         train_evaluate_and_log(
             pipeline,
