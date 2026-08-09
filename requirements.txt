@@ -1,22 +1,22 @@
 # Base Data Science
-numpy
-pandas
-scikit-learn
-joblib
+numpy==1.26.4
+pandas==2.2.2
+scikit-learn==1.4.2
+joblib==1.4.2
 
 # Modèles ML
-xgboost
-h2o
+xgboost==2.0.3
+h2o==3.44.0.3
 
 # MLOps & Tracking
 mlflow==2.16.2
-cloudpickle
-skops
-optuna
+cloudpickle==3.0.0
+skops==0.10.0
+optuna==3.6.1
 
 # API & Frontend
-fastapi
-uvicorn
-requests
-streamlit
-category_encoders
+fastapi==0.110.0
+uvicorn==0.29.0
+requests==2.31.0
+streamlit==1.32.0
+category_encoders==2.6.3
