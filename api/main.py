@@ -477,3 +477,112 @@ def training_status(job_id: str):
         "log_tail": log_tail,
         "result": snapshot.get("result"),
     }
+
+"""
+Endpoints à ajouter dans api/main.py pour lister et supprimer les modèles
+entraînés (runs MLflow de premier niveau, hors essais Optuna imbriqués).
+
+Ajoute ce bloc après les endpoints existants (/predict, /model-info, /reload-model).
+"""
+
+import mlflow
+from mlflow.entities import ViewType
+from fastapi import Query
+
+try:
+    from src.config import MLFLOW_EXPERIMENT_NAME
+except ModuleNotFoundError:
+    from config import MLFLOW_EXPERIMENT_NAME
+
+
+@app.get("/models")
+def list_models(include_deleted: bool = Query(False, description="Inclure les runs déjà supprimés (soft delete)")):
+    """
+    Liste tous les runs MLflow de premier niveau (hors essais Optuna 'trial_*'),
+    avec leurs métriques principales et un indicateur si c'est le champion actif.
+    """
+    try:
+        tracking_uri = resolve_tracking_uri()
+        mlflow.set_tracking_uri(tracking_uri)
+
+        experiment = mlflow.get_experiment_by_name(MLFLOW_EXPERIMENT_NAME)
+        if experiment is None:
+            return {"status": "error", "message": "Expérience MLflow introuvable.", "models": []}
+
+        view_type = ViewType.ALL if include_deleted else ViewType.ACTIVE_ONLY
+        runs = mlflow.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            run_view_type=view_type,
+            max_results=300,
+            order_by=["start_time DESC"],
+        )
+
+        if runs.empty:
+            return {"status": "success", "models": []}
+
+        # Exclure les essais Optuna imbriqués pour garder une liste lisible
+        if "tags.mlflow.parentRunId" in runs.columns:
+            runs = runs[runs["tags.mlflow.parentRunId"].isnull()]
+        if "tags.mlflow.runName" in runs.columns:
+            runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("trial_")]
+
+        current_champion_id = champion_info.run_id if champion_info is not None else None
+
+        models = []
+        for _, row in runs.iterrows():
+            models.append({
+                "run_id": row.get("run_id"),
+                "run_name": str(row.get("tags.mlflow.runName", "—")),
+                "model_type": str(row.get("params.model_type", "—")),
+                "horizon_years": row.get("params.horizon_years", "—"),
+                "pr_auc_test": row.get("metrics.pr_auc_test"),
+                "f1_train": row.get("metrics.f1_train"),
+                "f1_test": row.get("metrics.f1_test"),
+                "roc_auc_test": row.get("metrics.roc_auc_test"),
+                "start_time": str(row.get("start_time")),
+                "status": row.get("status"),
+                "is_current_champion": row.get("run_id") == current_champion_id,
+            })
+
+        return {"status": "success", "models": models}
+
+    except Exception as exc:
+        return {"status": "error", "message": str(exc), "models": []}
+
+
+@app.delete("/models/{run_id}")
+def delete_model(
+    run_id: str,
+    force: bool = Query(False, description="Confirme la suppression même si c'est le champion actif"),
+):
+    """
+    Supprime (soft delete MLflow) un run par son run_id.
+
+    Protège contre la suppression accidentelle du champion actuellement chargé
+    en mémoire : il faut passer force=true explicitement pour le supprimer.
+
+    Note : MLflow marque le run comme 'deleted' (lifecycle_stage) mais les
+    artefacts restent sur disque jusqu'à l'exécution de `mlflow gc` côté serveur.
+    """
+    if champion_info is not None and run_id == champion_info.run_id and not force:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Ce run est le champion actuellement chargé en mémoire par l'API. "
+                "Relance la requête avec ?force=true pour confirmer la suppression."
+            ),
+        )
+
+    try:
+        tracking_uri = resolve_tracking_uri()
+        client = mlflow.tracking.MlflowClient(tracking_uri=tracking_uri)
+        client.delete_run(run_id)
+
+        return {
+            "status": "success",
+            "message": f"Run {run_id} supprimé (soft delete MLflow).",
+            "was_champion": champion_info is not None and run_id == champion_info.run_id,
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Échec de la suppression : {exc}")
