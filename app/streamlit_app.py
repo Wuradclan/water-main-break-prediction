@@ -8,6 +8,7 @@ Les payloads suivent PipeBreakRequest (Phase 5).
 from __future__ import annotations
 
 import os
+from datetime import date
 
 import requests
 import streamlit as st
@@ -46,6 +47,16 @@ def api_post(path: str, payload: dict | None = None, params: dict | None = None,
 def fetch_model_info() -> dict:
     try:
         response = api_get("/model-info")
+        if response.status_code == 200:
+            return response.json()
+    except requests.RequestException:
+        pass
+    return {"status": "error", "model_name": "API inaccessible"}
+
+
+def fetch_regressor_info() -> dict:
+    try:
+        response = api_get("/regressor-info")
         if response.status_code == 200:
             return response.json()
     except requests.RequestException:
@@ -160,6 +171,9 @@ model_info = fetch_model_info()
 champion = model_info.get("champion") or {}
 horizon_years = champion.get("horizon_years", 5)
 
+regressor_info = fetch_regressor_info()
+regressor_champion = regressor_info.get("champion") or {}
+
 st.caption(
     f"Classification binaire : cette conduite va-t-elle rompre dans les **{horizon_years} prochaines années** ? "
     "Le modèle champion est sélectionné par la Model Gate industrielle (PR-AUC + filtre de surapprentissage F1)."
@@ -190,6 +204,20 @@ else:
     st.warning(
         "Aucun modèle champion chargé. Démarre la stack API / MLflow puis utilise "
         "**Recharger le champion depuis MLflow**."
+    )
+
+st.markdown("##### Modèle champion de régression (years_until_break)")
+if regressor_info.get("status") == "success" and regressor_champion:
+    r1, r2, r3, r4 = st.columns(4)
+    r1.metric("Modèle", str(regressor_champion.get("model_type", "—")))
+    r2.metric("RMSE (test)", f"{float(regressor_champion.get('rmse_test', 0)):.3f}")
+    r3.metric("MAE (test)", f"{float(regressor_champion.get('mae_test', 0)):.3f}")
+    r4.metric("R² (test)", f"{float(regressor_champion.get('r2_test', 0)):.3f}")
+    st.caption(f"Run : `{regressor_champion.get('run_id', '—')}`")
+else:
+    st.caption(
+        "Aucun modèle de régression champion disponible pour le moment "
+        "(entraîne-en un avec `--task regression`)."
     )
 
 
@@ -224,6 +252,14 @@ if predict_clicked:
                     f"**Classe prédite = 1** — rupture probable dans {horizon_years} ans "
                     f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
                 )
+
+                estimated_years = result.get("estimated_years_until_break")
+                if estimated_years is not None:
+                    estimated_calendar_year = date.today().year + round(float(estimated_years))
+                    st.warning(
+                        f"⏳ **Estimation du temps avant rupture** : environ "
+                        f"**{float(estimated_years):.1f} ans**, soit vers **{estimated_calendar_year}**."
+                    )
             else:
                 st.success(
                     f"**Classe prédite = 0** — aucune rupture prédite dans {horizon_years} ans "
