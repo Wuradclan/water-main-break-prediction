@@ -20,3 +20,6 @@ uvicorn
 requests
 streamlit
 category_encoders
+
+# Tests
+pytest

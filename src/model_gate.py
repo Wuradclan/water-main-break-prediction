@@ -78,6 +78,39 @@ class ChampionSelection:
         return asdict(self)
 
 
+@dataclass
+class RegressorChampionSelection:
+    run_id: str
+    run_name: str
+    model_type: str
+    model_uri: str
+    horizon_years: int
+    rmse_test: float
+    mae_test: float
+    r2_test: float
+    mse_test: Optional[float]
+    n_candidates: int
+    selection_mode: str  # "champion"
+
+    def summary(self) -> str:
+        return (
+            f"{self.model_type} [regressor] "
+            f"RMSE_test={self.rmse_test:.4f} | "
+            f"MAE_test={self.mae_test:.4f} | "
+            f"R2_test={self.r2_test:.4f}"
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+REQUIRED_REGRESSION_METRICS = (
+    "metrics.rmse_test",
+    "metrics.mae_test",
+    "metrics.r2_test",
+)
+
+
 def resolve_tracking_uri(tracking_uri: Optional[str] = None) -> str:
     """
     Resolve MLflow tracking URI for Docker and local execution.
@@ -271,6 +304,124 @@ def explain_selection(selection: ChampionSelection) -> str:
     return "\n".join(lines)
 
 
+def fetch_candidate_regressor_runs(
+    experiment_name: str = MLFLOW_EXPERIMENT_NAME,
+    tracking_uri: Optional[str] = None,
+    max_results: int = 100,
+) -> pd.DataFrame:
+    """Load top-level regression runs (params.task == 'regression') with RMSE metrics."""
+    mlflow.set_tracking_uri(resolve_tracking_uri(tracking_uri))
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(
+            f"MLflow experiment not found: {experiment_name!r}. "
+            "Train at least one regression model first."
+        )
+
+    runs = mlflow.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        filter_string=(
+            "params.task = 'regression' AND "
+            "metrics.rmse_test >= 0 AND "
+            "metrics.mae_test >= 0"
+        ),
+        max_results=max_results,
+        order_by=["metrics.rmse_test ASC"],
+    )
+    if runs.empty:
+        return runs
+
+    if "tags.mlflow.parentRunId" in runs.columns:
+        runs = runs[runs["tags.mlflow.parentRunId"].isnull()].copy()
+    if "tags.mlflow.runName" in runs.columns:
+        runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("trial_")].copy()
+
+    missing = [c for c in REQUIRED_REGRESSION_METRICS if c not in runs.columns]
+    if missing:
+        raise ValueError(f"Candidate regressor runs missing required metrics: {missing}")
+
+    runs = runs.dropna(subset=list(REQUIRED_REGRESSION_METRICS)).copy()
+
+    client = mlflow.tracking.MlflowClient()
+    has_model = runs["run_id"].apply(lambda rid: _has_logged_model(client, rid))
+    runs = runs[has_model].copy()
+    return runs.reset_index(drop=True)
+
+
+def select_champion_regressor(
+    runs: Optional[pd.DataFrame] = None,
+    tracking_uri: Optional[str] = None,
+    experiment_name: str = MLFLOW_EXPERIMENT_NAME,
+) -> RegressorChampionSelection:
+    """
+    Select the regression champion: lowest RMSE on the temporal test set among
+    runs tagged with params.task == 'regression'.
+    """
+    if runs is None:
+        runs = fetch_candidate_regressor_runs(
+            experiment_name=experiment_name,
+            tracking_uri=tracking_uri,
+        )
+    if runs.empty:
+        raise ValueError(
+            "No eligible regression runs found for the Model Gate "
+            f"(experiment={experiment_name!r}, params.task='regression')."
+        )
+
+    best_idx = runs["metrics.rmse_test"].idxmin()
+    best = runs.loc[best_idx]
+
+    run_name = str(best.get("tags.mlflow.runName", "unnamed"))
+    model_type = str(best.get("params.model_type", run_name))
+    run_id = str(best["run_id"])
+
+    raw_horizon = best.get("params.horizon_years", 5)
+    try:
+        horizon_years = int(float(raw_horizon)) if pd.notna(raw_horizon) else 5
+    except (ValueError, TypeError):
+        horizon_years = 5
+
+    mse_test = None
+    if "metrics.mse_test" in best.index and pd.notna(best["metrics.mse_test"]):
+        mse_test = float(best["metrics.mse_test"])
+
+    return RegressorChampionSelection(
+        run_id=run_id,
+        run_name=run_name,
+        model_type=model_type,
+        model_uri=f"runs:/{run_id}/model",
+        horizon_years=horizon_years,
+        rmse_test=float(best["metrics.rmse_test"]),
+        mae_test=float(best["metrics.mae_test"]),
+        r2_test=float(best["metrics.r2_test"]),
+        mse_test=mse_test,
+        n_candidates=int(len(runs)),
+        selection_mode="champion",
+    )
+
+
+def explain_regressor_selection(selection: RegressorChampionSelection) -> str:
+    lines = [
+        "=== KW Water-Main Regressor Gate ===",
+        "Primary metric     : rmse_test (lower is better)",
+        f"Candidates         : {selection.n_candidates}",
+        f"Selection mode     : {selection.selection_mode}",
+        f"Champion run       : {selection.run_name} ({selection.run_id})",
+        f"Model type         : {selection.model_type}",
+        f"Model URI          : {selection.model_uri}",
+        f"RMSE test          : {selection.rmse_test:.6f}",
+        f"MAE test           : {selection.mae_test:.6f}",
+        f"R² test            : {selection.r2_test:.6f}",
+        f"Summary            : {selection.summary()}",
+    ]
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     champion = select_champion_run()
     print(explain_selection(champion))
+    try:
+        reg = select_champion_regressor()
+        print(explain_regressor_selection(reg))
+    except ValueError as exc:
+        print(f"(No regressor champion yet: {exc})")

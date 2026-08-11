@@ -8,6 +8,7 @@ Les payloads suivent PipeBreakRequest (Phase 5).
 from __future__ import annotations
 
 import os
+from datetime import date
 
 import requests
 import streamlit as st
@@ -46,6 +47,16 @@ def api_post(path: str, payload: dict | None = None, params: dict | None = None,
 def fetch_model_info() -> dict:
     try:
         response = api_get("/model-info")
+        if response.status_code == 200:
+            return response.json()
+    except requests.RequestException:
+        pass
+    return {"status": "error", "model_name": "API inaccessible"}
+
+
+def fetch_regressor_info() -> dict:
+    try:
+        response = api_get("/regressor-info")
         if response.status_code == 200:
             return response.json()
     except requests.RequestException:
@@ -192,6 +203,25 @@ else:
         "**Recharger le champion depuis MLflow**."
     )
 
+regressor_info = fetch_regressor_info()
+regressor_champion = regressor_info.get("champion") or {}
+st.subheader("Régresseur champion (années jusqu'à rupture)")
+if regressor_info.get("status") == "success" and regressor_champion:
+    r1, r2, r3, r4 = st.columns(4)
+    r1.metric("Modèle", str(regressor_champion.get("model_type", "—")))
+    r2.metric("RMSE (test)", f"{float(regressor_champion.get('rmse_test', 0)):.3f}")
+    r3.metric("MAE (test)", f"{float(regressor_champion.get('mae_test', 0)):.3f}")
+    r4.metric("R² (test)", f"{float(regressor_champion.get('r2_test', 0)):.3f}")
+    st.caption(
+        f"Run : `{regressor_champion.get('run_id', '—')}` · "
+        "Utilisé uniquement lorsque le classifieur prédit une rupture (classe 1)."
+    )
+else:
+    st.caption(
+        "Aucun régresseur champion disponible. Entraîne avec "
+        "`python -m src.train --task regression --model_type xgb_reg`."
+    )
+
 
 st.markdown("---")
 st.subheader("Prédiction")
@@ -224,6 +254,14 @@ if predict_clicked:
                     f"**Classe prédite = 1** — rupture probable dans {horizon_years} ans "
                     f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
                 )
+                years_est = result.get("estimated_years_until_break")
+                if years_est is not None:
+                    years_est = float(years_est)
+                    approx_year = date.today().year + int(round(years_est))
+                    st.warning(
+                        f"**Estimation temporelle :** rupture estimée dans "
+                        f"**{years_est:.1f} années** (vers **{approx_year}**)."
+                    )
             else:
                 st.success(
                     f"**Classe prédite = 0** — aucune rupture prédite dans {horizon_years} ans "

@@ -105,6 +105,10 @@ META_COLUMNS = [
 TARGET_COLUMN = "break_within_horizon"
 TARGET_VALUES = (0, 1)
 
+# Regression target: years from snapshot_date until the next recorded break.
+# Only defined for non-censored rows (a future break exists); NaN otherwise.
+REGRESSION_TARGET_COLUMN = "years_until_break"
+
 # Model input features only (no IDs, no post-break fields, no target).
 FEATURE_COLUMNS = CATEGORICAL_COLUMNS + NUMERIC_COLUMNS
 

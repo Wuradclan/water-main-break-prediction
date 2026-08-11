@@ -37,6 +37,7 @@ try:
         LEAKAGE_FORBIDDEN_COLUMNS,
         META_COLUMNS,
         NUMERIC_COLUMNS,
+        REGRESSION_TARGET_COLUMN,
         TARGET_COLUMN,
     )
 except ModuleNotFoundError:
@@ -53,6 +54,7 @@ except ModuleNotFoundError:
         LEAKAGE_FORBIDDEN_COLUMNS,
         META_COLUMNS,
         NUMERIC_COLUMNS,
+        REGRESSION_TARGET_COLUMN,
         TARGET_COLUMN,
     )
 
@@ -105,7 +107,8 @@ def assert_no_temporal_leakage(df: pd.DataFrame) -> None:
             f"{leaked}"
         )
 
-    unexpected = [c for c in df.columns if c not in set(FEATURE_COLUMNS + [TARGET_COLUMN] + META_COLUMNS)]
+    allowed = set(FEATURE_COLUMNS + [TARGET_COLUMN, REGRESSION_TARGET_COLUMN] + META_COLUMNS)
+    unexpected = [c for c in df.columns if c not in allowed]
     if unexpected:
         raise ValueError(
             "Unexpected columns outside the Phase-2 data contract: "
