@@ -105,6 +105,12 @@ META_COLUMNS = [
 TARGET_COLUMN = "break_within_horizon"
 TARGET_VALUES = (0, 1)
 
+# Regression target: years until the next recorded break for a given asset,
+# computed from snapshot_date. Only defined (non-NaN) for pipes with a known
+# future break in the historical record (uncensored rows); see
+# src.labeling.add_years_until_next_break.
+REGRESSION_TARGET_COLUMN = "years_until_break"
+
 # Model input features only (no IDs, no post-break fields, no target).
 FEATURE_COLUMNS = CATEGORICAL_COLUMNS + NUMERIC_COLUMNS
 

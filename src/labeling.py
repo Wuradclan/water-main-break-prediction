@@ -305,6 +305,60 @@ def save_snapshot_dataset(
     return path
 
 
+def _years_until_next_break_for_row(
+    snapshot_date: pd.Timestamp,
+    break_dates: list[pd.Timestamp],
+) -> float:
+    future = [d for d in break_dates if d > snapshot_date]
+    if not future:
+        return np.nan
+    next_break = min(future)
+    return float((next_break - snapshot_date).days) / 365.25
+
+
+def add_years_until_next_break(
+    snapshots: pd.DataFrame,
+    events: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Attach years_until_break using only breaks with incident_date > snapshot_date.
+
+    For each row, finds the next recorded break after snapshot_date for the same
+    asset_id and computes years_until_break = (next_break - snapshot_date).days / 365.25.
+    Rows for assets with no future recorded break are right-censored and get NaN
+    (this is a regression target, not a classification label: censored rows must
+    be excluded from regression training, see REGRESSION_TARGET_COLUMN).
+    """
+    events = events.copy()
+    if "incident_date" not in events.columns:
+        raise ValueError("events must contain an 'incident_date' column.")
+    if "asset_id" not in events.columns:
+        raise ValueError("events must contain an 'asset_id' column.")
+
+    events["incident_date"] = pd.to_datetime(events["incident_date"], errors="coerce").dt.normalize()
+    events["asset_id"] = events["asset_id"].astype(str)
+
+    breaks_by_asset = {
+        str(asset_id): sorted(group["incident_date"].dropna().tolist())
+        for asset_id, group in events.groupby("asset_id", sort=False)
+    }
+
+    out = snapshots.copy()
+    out["snapshot_date"] = pd.to_datetime(out["snapshot_date"], errors="coerce").dt.normalize()
+    out["asset_id"] = out["asset_id"].astype(str)
+
+    values = []
+    for asset_id, snapshot_date in zip(out["asset_id"], out["snapshot_date"]):
+        values.append(
+            _years_until_next_break_for_row(
+                snapshot_date,
+                breaks_by_asset.get(str(asset_id), []),
+            )
+        )
+    out["years_until_break"] = values
+    return out
+
+
 def summarize_snapshots(snapshots: pd.DataFrame) -> dict:
     n = len(snapshots)
     n_pos = int((snapshots[TARGET_COLUMN] == 1).sum()) if n else 0
