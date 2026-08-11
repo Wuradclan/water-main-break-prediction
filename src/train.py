@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from typing import Optional
 
 import joblib
 import mlflow
@@ -13,17 +14,29 @@ import pandas as pd
 from category_encoders import TargetEncoder
 from mlflow.models import infer_signature
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier, StackingClassifier
+from sklearn.ensemble import (
+    ExtraTreesClassifier,
+    RandomForestClassifier,
+    RandomForestRegressor,
+    StackingClassifier,
+)
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import average_precision_score, f1_score, roc_auc_score
-from sklearn.model_selection import StratifiedKFold, cross_val_predict
+from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
+from sklearn.metrics import (
+    average_precision_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+    roc_auc_score,
+)
+from sklearn.model_selection import KFold, StratifiedKFold, cross_val_predict
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from xgboost import XGBClassifier
+from xgboost import XGBClassifier, XGBRegressor
 
 os.environ["GIT_PYTHON_REFRESH"] = "quiet"
 
@@ -39,13 +52,13 @@ try:
         processed_snapshots_path,
         raw_breaks_path,
     )
-    from src.labeling import compute_file_sha256
+    from src.labeling import add_years_until_next_break, compute_file_sha256, load_break_events
     from src.preprocessing import (
         CATEGORICAL_COLUMNS,
         NUMERIC_COLUMNS,
         prepare_pipe_break_data,
     )
-    from src.schema import FEATURE_COLUMNS, TARGET_COLUMN
+    from src.schema import FEATURE_COLUMNS, REGRESSION_TARGET_COLUMN, TARGET_COLUMN
 except ModuleNotFoundError:
     from config import (
         HORIZON_YEARS,
@@ -58,18 +71,38 @@ except ModuleNotFoundError:
         processed_snapshots_path,
         raw_breaks_path,
     )
-    from labeling import compute_file_sha256
+    from labeling import add_years_until_next_break, compute_file_sha256, load_break_events
     from preprocessing import (
         CATEGORICAL_COLUMNS,
         NUMERIC_COLUMNS,
         prepare_pipe_break_data,
     )
-    from schema import FEATURE_COLUMNS, TARGET_COLUMN
+    from schema import FEATURE_COLUMNS, REGRESSION_TARGET_COLUMN, TARGET_COLUMN
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODEL_OUTPUT_PATH = PROJECT_ROOT / "models" / "model.pkl"
+MODEL_OUTPUT_PATH_REGRESSOR = PROJECT_ROOT / "models" / "model_regressor.pkl"
 _DEFAULT_SQLITE = (PROJECT_ROOT / "mlflow.db").resolve()
 DEFAULT_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", f"sqlite:///{_DEFAULT_SQLITE}")
+
+CLASSIFICATION_MODEL_TYPES = [
+    "logistic",
+    "ridge",
+    "lasso",
+    "random_forest",
+    "xgboost",
+    "extra_trees",
+    "knn",
+    "svc",
+    "mlp",
+    "stacking",
+    "h2o",
+]
+
+# Regression model types (Phase 6): predict years_until_break for pipes the
+# classifier flags as at-risk (label=1). Uncensored target only, see
+# src.labeling.add_years_until_next_break and src.schema.REGRESSION_TARGET_COLUMN.
+REGRESSION_MODEL_TYPES = ["linear", "ridge_reg", "lasso_reg", "rf_reg", "xgb_reg"]
 
 
 def build_preprocessor(feature_columns):
@@ -156,6 +189,50 @@ def get_experiment_models(feature_columns, n_estimators=100, max_depth=10, learn
     }
 
 
+def get_regression_models(feature_columns, n_estimators=100, max_depth=10, learning_rate=0.1, alpha=1.0):
+    """
+    Regression models estimating years_until_break, sharing the same
+    ColumnTransformer preprocessing (imputation, StandardScaler, TargetEncoder)
+    as the classification pipelines.
+    """
+    preprocessor = build_preprocessor(feature_columns)
+
+    return {
+        "linear": Pipeline([("preprocessor", preprocessor), ("model", LinearRegression())]),
+        "ridge_reg": Pipeline([("preprocessor", preprocessor), ("model", Ridge(alpha=alpha, random_state=42))]),
+        "lasso_reg": Pipeline([("preprocessor", preprocessor), ("model", Lasso(alpha=alpha, random_state=42, max_iter=5000))]),
+        "rf_reg": Pipeline(
+            [
+                ("preprocessor", preprocessor),
+                (
+                    "model",
+                    RandomForestRegressor(
+                        n_estimators=n_estimators,
+                        max_depth=max_depth,
+                        random_state=42,
+                        n_jobs=4,
+                    ),
+                ),
+            ]
+        ),
+        "xgb_reg": Pipeline(
+            [
+                ("preprocessor", preprocessor),
+                (
+                    "model",
+                    XGBRegressor(
+                        n_estimators=n_estimators,
+                        max_depth=max_depth,
+                        learning_rate=learning_rate,
+                        random_state=42,
+                        n_jobs=4,
+                    ),
+                ),
+            ]
+        ),
+    }
+
+
 def predict_proba_positive(pipeline, X) -> np.ndarray:
     if hasattr(pipeline, "predict_proba"):
         proba = pipeline.predict_proba(X)
@@ -195,6 +272,21 @@ def build_optuna_score(pr_auc_cv: float, f1_train: float, f1_cv: float) -> tuple
     overfit_gap = float(max(0.0, f1_train - f1_cv))
     score = pr_auc_cv / (1.0 + overfit_gap) if overfit_gap > OVERFIT_F1_GAP_THRESHOLD else pr_auc_cv
     return float(score), overfit_gap
+
+
+def calculate_regression_metrics(y_true, y_pred, prefix: str = "") -> dict:
+    y_true = np.asarray(y_true, dtype=float)
+    y_pred = np.asarray(y_pred, dtype=float)
+    mse = float(mean_squared_error(y_true, y_pred))
+    rmse = float(np.sqrt(mse))
+    mae = float(mean_absolute_error(y_true, y_pred))
+    r2 = float(r2_score(y_true, y_pred))
+    return {
+        f"{prefix}mse": mse,
+        f"{prefix}rmse": rmse,
+        f"{prefix}mae": mae,
+        f"{prefix}r2": r2,
+    }
 
 
 def make_input_example(X: pd.DataFrame, n: int = 3) -> pd.DataFrame:
@@ -271,6 +363,125 @@ def log_and_save_h2o(best_model, metrics, leader_model_type, params=None):
     mlflow.set_tag("leader_model_type", leader_model_type)
     mlflow.h2o.log_model(best_model, artifact_path="model")
     _print_summary(f"H2O_{leader_model_type}", metrics)
+
+
+def prepare_regression_data(horizon_years: int = HORIZON_YEARS, cutoff: Optional[str] = None):
+    """
+    Build the regression training frame for years_until_break.
+
+    Reuses the classification snapshot/feature pipeline (prepare_pipe_break_data),
+    then attaches years_until_break from raw break events and drops censored rows
+    (no recorded future break for that asset) since the target is undefined for
+    them. Rows kept for classification are unaffected by this filter.
+    """
+    _, _, _, _, cleaned_df = prepare_pipe_break_data(horizon_years=horizon_years)
+    events = load_break_events()
+    with_target = add_years_until_next_break(cleaned_df, events)
+    with_target = with_target.dropna(subset=[REGRESSION_TARGET_COLUMN]).copy()
+
+    if with_target.empty:
+        raise ValueError(
+            "No rows with a valid years_until_break target: every pipe in this "
+            "dataset is right-censored (no recorded future break). Cannot train "
+            "the regression model."
+        )
+
+    split_date = pd.Timestamp(cutoff or TEMPORAL_SPLIT_DATE)
+    train_df = with_target[with_target["snapshot_date"] < split_date].copy()
+    test_df = with_target[with_target["snapshot_date"] >= split_date].copy()
+
+    if train_df.empty or test_df.empty:
+        raise ValueError(
+            f"Temporal split at {split_date.date()} produced an empty regression "
+            f"train or test set (train={len(train_df)}, test={len(test_df)})."
+        )
+
+    X_train = train_df[FEATURE_COLUMNS].copy()
+    y_train = train_df[REGRESSION_TARGET_COLUMN].copy()
+    X_test = test_df[FEATURE_COLUMNS].copy()
+    y_test = test_df[REGRESSION_TARGET_COLUMN].copy()
+    return X_train, X_test, y_train, y_test, with_target
+
+
+def _print_regression_summary(model_type, metrics):
+    print(f"\n✅ Regressor {model_type} finished.")
+    print(f"🟣 RMSE Train: {metrics.get('rmse_train', 0):.4f}")
+    print(f"🟢 RMSE Test:  {metrics.get('rmse_test', 0):.4f}")
+    print(f"🔵 MAE Train/Test: {metrics.get('mae_train', 0):.4f} / {metrics.get('mae_test', 0):.4f}")
+    print(f"🟠 R2 Train/Test:  {metrics.get('r2_train', 0):.4f} / {metrics.get('r2_test', 0):.4f}")
+
+
+def log_and_save_regressor(pipeline, metrics, model_path, model_type, X_example, params=None):
+    if params:
+        safe_params = dict(params)
+        safe_params.pop("model_type", None)
+        safe_params.pop("task", None)
+        mlflow.log_params(safe_params)
+
+    # Tag task=regression so the Model Gate (select_champion_regressor) can
+    # separate regression runs from classification runs sharing the experiment.
+    mlflow.log_params({"task": "regression", "model_type": model_type})
+    try:
+        mlflow.log_param("horizon_years", HORIZON_YEARS)
+    except Exception:
+        pass  # Already logged for this run.
+    mlflow.log_metrics(metrics)
+
+    input_example = make_input_example(X_example)
+    pred_example = np.asarray(pipeline.predict(input_example), dtype=float)
+
+    mlflow.log_dict(
+        {
+            "input_columns": list(input_example.columns),
+            "output_predict": "years_until_break estimate (float, years)",
+            "prediction_example": [float(x) for x in pred_example.ravel().tolist()],
+        },
+        "model_io_schema.json",
+    )
+
+    mlflow.sklearn.log_model(pipeline, "model")
+
+    model_path = Path(model_path)
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(pipeline, model_path)
+    _print_regression_summary(model_type, metrics)
+
+
+def train_evaluate_and_log_regressor(
+    pipeline,
+    X_train,
+    y_train,
+    X_test,
+    y_test,
+    model_path,
+    model_type,
+    params=None,
+    is_optimized=False,
+):
+    pipeline.fit(X_train, y_train)
+
+    train_pred = pipeline.predict(X_train)
+    train_metrics = calculate_regression_metrics(y_train, train_pred, prefix="")
+
+    test_pred = pipeline.predict(X_test)
+    test_metrics = calculate_regression_metrics(y_test, test_pred, prefix="")
+
+    metrics = {
+        "mse_train": train_metrics["mse"],
+        "rmse_train": train_metrics["rmse"],
+        "mae_train": train_metrics["mae"],
+        "r2_train": train_metrics["r2"],
+        "mse_test": test_metrics["mse"],
+        "rmse_test": test_metrics["rmse"],
+        "mae_test": test_metrics["mae"],
+        "r2_test": test_metrics["r2"],
+    }
+
+    if is_optimized and params is not None:
+        params = {**params, "optimized": True}
+
+    log_and_save_regressor(pipeline, metrics, model_path, model_type, X_example=X_train, params=params)
+    return metrics
 
 
 def train_evaluate_and_log(
@@ -463,43 +674,119 @@ def run_h2o_branch(max_runtime_secs: int = 120, horizon_years: int = HORIZON_YEA
     _ = cleaned_df
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Train KW water-main break classifiers with MLflow tracking.")
-    parser.add_argument(
-        "--model_type",
-        type=str,
-        default="xgboost",
-        choices=[
-            "logistic",
-            "ridge",
-            "lasso",
-            "random_forest",
-            "xgboost",
-            "extra_trees",
-            "knn",
-            "svc",
-            "mlp",
-            "stacking",
-            "h2o",
-        ],
+def run_regression(args) -> None:
+    """
+    Train a years_until_break regressor (Phase 6).
+
+    Mirrors run_classification's structure but targets the uncensored
+    years_until_break rows produced by prepare_regression_data(), reusing the
+    same feature preprocessing (build_preprocessor / get_regression_models).
+    """
+    X_train, X_test, y_train, y_test, cleaned_df = prepare_regression_data(horizon_years=args.horizon_years)
+    for frame in (X_train, X_test):
+        for col in frame.select_dtypes(include=["integer"]).columns:
+            frame[col] = frame[col].astype(float)
+
+    print(
+        f"[regression] Horizon={args.horizon_years}y | Temporal split @ {TEMPORAL_SPLIT_DATE}: "
+        f"train={len(X_train)} test={len(X_test)} (uncensored rows only)"
     )
-    parser.add_argument("--alpha", type=float, default=1.0)
-    parser.add_argument("--n_estimators", type=int, default=100)
-    parser.add_argument("--max_depth", type=int, default=10)
-    parser.add_argument("--learning_rate", type=float, default=0.1)
-    parser.add_argument("--tune", action="store_true")
-    parser.add_argument("--n_trials", type=int, default=20)
-    parser.add_argument("--n_est_min", type=int, default=100)
-    parser.add_argument("--n_est_max", type=int, default=1000)
-    parser.add_argument("--depth_min", type=int, default=3)
-    parser.add_argument("--depth_max", type=int, default=15)
-    parser.add_argument("--h2o_max_runtime_secs", type=int, default=120)
-    parser.add_argument("--horizon_years", type=int, default=HORIZON_YEARS, choices=[1, 2, 5])
-    args = parser.parse_args()
 
-    mlflow.set_tracking_uri(DEFAULT_TRACKING_URI)
-    mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+    shared_params = _dataset_params(horizon_years=args.horizon_years)
+    shared_params["target_column"] = REGRESSION_TARGET_COLUMN
 
+    if args.tune:
+        print(f"🎯 Optuna tuning for {args.model_type} ({args.n_trials} trials, minimize RMSE)...")
+        with mlflow.start_run(run_name=f"Optuna_Study_reg_{args.model_type}"):
+            mlflow.log_params({**shared_params, "task": "regression", "model_type": args.model_type, "tune": True})
+
+            def objective(trial):
+                params = {
+                    "n_estimators": trial.suggest_int("n_estimators", args.n_est_min, args.n_est_max, step=50),
+                    "max_depth": trial.suggest_int("max_depth", args.depth_min, args.depth_max),
+                    "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
+                    "alpha": trial.suggest_float("alpha", 0.1, 10.0, log=True),
+                }
+                trial_pipeline = get_regression_models(X_train.columns.tolist(), **params).get(args.model_type)
+
+                with mlflow.start_run(run_name=f"trial_{trial.number}", nested=True):
+                    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+                    cv_pred = cross_val_predict(trial_pipeline, X_train, y_train, cv=cv, n_jobs=-1)
+                    cv_metrics = calculate_regression_metrics(y_train, cv_pred)
+
+                    trial_pipeline.fit(X_train, y_train)
+                    train_pred = trial_pipeline.predict(X_train)
+                    train_metrics = calculate_regression_metrics(y_train, train_pred)
+
+                    test_pred = trial_pipeline.predict(X_test)
+                    test_metrics = calculate_regression_metrics(y_test, test_pred)
+
+                    trial_metrics = {
+                        "mse_cv": cv_metrics["mse"],
+                        "rmse_cv": cv_metrics["rmse"],
+                        "mae_cv": cv_metrics["mae"],
+                        "r2_cv": cv_metrics["r2"],
+                        "mse_train": train_metrics["mse"],
+                        "rmse_train": train_metrics["rmse"],
+                        "mae_train": train_metrics["mae"],
+                        "r2_train": train_metrics["r2"],
+                        "mse_test": test_metrics["mse"],
+                        "rmse_test": test_metrics["rmse"],
+                        "mae_test": test_metrics["mae"],
+                        "r2_test": test_metrics["r2"],
+                    }
+                    log_mlflow_data(params={**params, "task": "regression", "model_type": args.model_type}, metrics=trial_metrics)
+                    return trial_metrics["rmse_cv"]
+
+            study = optuna.create_study(direction="minimize")
+            study.optimize(objective, n_trials=args.n_trials)
+            print(f"\n🏆 Best params (min RMSE): {study.best_params}")
+
+            final_params = {**study.best_params, "model_type": args.model_type, **shared_params}
+            champion = get_regression_models(
+                X_train.columns.tolist(),
+                n_estimators=study.best_params.get("n_estimators", args.n_estimators),
+                max_depth=study.best_params.get("max_depth", args.max_depth),
+                learning_rate=study.best_params.get("learning_rate", args.learning_rate),
+                alpha=study.best_params.get("alpha", args.alpha),
+            ).get(args.model_type)
+
+            train_evaluate_and_log_regressor(
+                champion,
+                X_train,
+                y_train,
+                X_test,
+                y_test,
+                MODEL_OUTPUT_PATH_REGRESSOR,
+                args.model_type,
+                params=final_params,
+                is_optimized=True,
+            )
+        return
+
+    models = get_regression_models(
+        X_train.columns.tolist(),
+        n_estimators=args.n_estimators,
+        max_depth=args.max_depth,
+        learning_rate=args.learning_rate,
+        alpha=args.alpha,
+    )
+    pipeline = models[args.model_type]
+    with mlflow.start_run(run_name=f"run_reg_{args.model_type}"):
+        train_evaluate_and_log_regressor(
+            pipeline,
+            X_train,
+            y_train,
+            X_test,
+            y_test,
+            MODEL_OUTPUT_PATH_REGRESSOR,
+            args.model_type,
+            params={**vars(args), **shared_params},
+        )
+    _ = cleaned_df
+
+
+def run_classification(args) -> None:
     if args.model_type == "h2o":
         run_h2o_branch(max_runtime_secs=args.h2o_max_runtime_secs, horizon_years=args.horizon_years)
         return
@@ -621,6 +908,56 @@ def main():
             args.model_type,
             params={**vars(args), **shared_params},
         )
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Train KW water-main break classifiers/regressors with MLflow tracking.")
+    parser.add_argument(
+        "--task",
+        type=str,
+        default="classification",
+        choices=["classification", "regression"],
+        help=(
+            "classification (default, unchanged): break_within_horizon. "
+            "regression: years_until_break, restricted to uncensored rows."
+        ),
+    )
+    parser.add_argument(
+        "--model_type",
+        type=str,
+        default=None,
+        choices=CLASSIFICATION_MODEL_TYPES + REGRESSION_MODEL_TYPES,
+        help="Defaults to 'xgboost' for classification, 'xgb_reg' for regression.",
+    )
+    parser.add_argument("--alpha", type=float, default=1.0)
+    parser.add_argument("--n_estimators", type=int, default=100)
+    parser.add_argument("--max_depth", type=int, default=10)
+    parser.add_argument("--learning_rate", type=float, default=0.1)
+    parser.add_argument("--tune", action="store_true")
+    parser.add_argument("--n_trials", type=int, default=20)
+    parser.add_argument("--n_est_min", type=int, default=100)
+    parser.add_argument("--n_est_max", type=int, default=1000)
+    parser.add_argument("--depth_min", type=int, default=3)
+    parser.add_argument("--depth_max", type=int, default=15)
+    parser.add_argument("--h2o_max_runtime_secs", type=int, default=120)
+    parser.add_argument("--horizon_years", type=int, default=HORIZON_YEARS, choices=[1, 2, 5])
+    args = parser.parse_args()
+
+    if args.model_type is None:
+        args.model_type = "xgb_reg" if args.task == "regression" else "xgboost"
+
+    if args.task == "regression" and args.model_type not in REGRESSION_MODEL_TYPES:
+        parser.error(f"--model_type {args.model_type!r} is not valid for --task regression. Choose from {REGRESSION_MODEL_TYPES}.")
+    if args.task == "classification" and args.model_type not in CLASSIFICATION_MODEL_TYPES:
+        parser.error(f"--model_type {args.model_type!r} is not valid for --task classification. Choose from {CLASSIFICATION_MODEL_TYPES}.")
+
+    mlflow.set_tracking_uri(DEFAULT_TRACKING_URI)
+    mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+
+    if args.task == "regression":
+        run_regression(args)
+    else:
+        run_classification(args)
 
 
 if __name__ == "__main__":
