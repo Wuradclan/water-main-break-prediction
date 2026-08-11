@@ -321,6 +321,59 @@ def summarize_snapshots(snapshots: pd.DataFrame) -> dict:
     }
 
 
+def _years_until_next_break_for_row(
+    snapshot_date: pd.Timestamp,
+    break_dates: list[pd.Timestamp],
+) -> float:
+    """Years until the earliest break strictly after snapshot_date, else NaN."""
+    future = [d for d in break_dates if d > snapshot_date]
+    if not future:
+        return np.nan
+    next_break = min(future)
+    return float((next_break - snapshot_date).days) / 365.25
+
+
+def add_years_until_next_break(
+    snapshots: pd.DataFrame,
+    events: pd.DataFrame,
+) -> pd.DataFrame:
+    """
+    Attach years_until_break = (next_break - snapshot_date).days / 365.25.
+
+    Only defined when a future break exists for the same asset_id after
+    snapshot_date; otherwise NaN (right-censored rows, excluded from regression
+    training but kept for classification).
+    """
+    if "incident_date" not in events.columns:
+        raise ValueError("events must contain an 'incident_date' column.")
+    if "asset_id" not in events.columns:
+        raise ValueError("events must contain an 'asset_id' column.")
+
+    events = events.copy()
+    events["incident_date"] = pd.to_datetime(events["incident_date"], errors="coerce").dt.normalize()
+    events["asset_id"] = events["asset_id"].astype(str)
+
+    breaks_by_asset = {
+        str(asset_id): sorted(group["incident_date"].dropna().tolist())
+        for asset_id, group in events.groupby("asset_id", sort=False)
+    }
+
+    out = snapshots.copy()
+    out["snapshot_date"] = pd.to_datetime(out["snapshot_date"], errors="coerce").dt.normalize()
+    out["asset_id"] = out["asset_id"].astype(str)
+
+    values = []
+    for asset_id, snapshot_date in zip(out["asset_id"], out["snapshot_date"]):
+        values.append(
+            _years_until_next_break_for_row(
+                snapshot_date,
+                breaks_by_asset.get(str(asset_id), []),
+            )
+        )
+    out["years_until_break"] = values
+    return out
+
+
 if __name__ == "__main__":
     raw_path = Path(raw_breaks_path)
     print(f"Loading breaks from: {raw_path}")
