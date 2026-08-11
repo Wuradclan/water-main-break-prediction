@@ -45,6 +45,12 @@ REQUIRED_METRICS = (
     "metrics.f1_test",
 )
 
+REQUIRED_REGRESSION_METRICS = (
+    "metrics.rmse_test",
+    "metrics.mae_test",
+    "metrics.r2_test",
+)
+
 
 @dataclass
 class ChampionSelection:
@@ -72,6 +78,29 @@ class ChampionSelection:
             f"PR-AUC_test={self.pr_auc_test:.4f} | "
             f"F1_train/test={self.f1_train:.4f}/{self.f1_test:.4f} | "
             f"overfit_f1_gap={self.overfit_f1_gap:.4f}"
+        )
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+@dataclass
+class RegressorChampionSelection:
+    """Champion metadata for the years_until_break regression Model Gate."""
+
+    run_id: str
+    run_name: str
+    model_type: str
+    model_uri: str
+    rmse_test: float
+    mae_test: float
+    r2_test: float
+
+    def summary(self) -> str:
+        return (
+            f"{self.model_type} [regression] "
+            f"RMSE_test={self.rmse_test:.4f} | MAE_test={self.mae_test:.4f} | "
+            f"R2_test={self.r2_test:.4f}"
         )
 
     def to_dict(self) -> dict:
@@ -159,6 +188,106 @@ def fetch_candidate_runs(
     has_model = runs["run_id"].apply(lambda rid: _has_logged_model(client, rid))
     runs = runs[has_model].copy()
     return runs.reset_index(drop=True)
+
+
+def fetch_candidate_regression_runs(
+    experiment_name: str = MLFLOW_EXPERIMENT_NAME,
+    tracking_uri: Optional[str] = None,
+    max_results: int = 100,
+) -> pd.DataFrame:
+    """Load top-level regression runs (params.task == 'regression') that expose the gate metrics."""
+    mlflow.set_tracking_uri(resolve_tracking_uri(tracking_uri))
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    if experiment is None:
+        raise ValueError(
+            f"MLflow experiment not found: {experiment_name!r}. "
+            "Train at least one regression model first (--task regression)."
+        )
+
+    runs = mlflow.search_runs(
+        experiment_ids=[experiment.experiment_id],
+        filter_string=(
+            "params.task = 'regression' AND "
+            "metrics.rmse_test >= 0 AND "
+            "metrics.mae_test >= 0"
+        ),
+        max_results=max_results,
+        order_by=["metrics.rmse_test ASC"],
+    )
+    if runs.empty:
+        return runs
+
+    # Exclude Optuna nested trials, same rationale as fetch_candidate_runs.
+    if "tags.mlflow.parentRunId" in runs.columns:
+        runs = runs[runs["tags.mlflow.parentRunId"].isnull()].copy()
+    if "tags.mlflow.runName" in runs.columns:
+        runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("trial_")].copy()
+
+    missing = [c for c in REQUIRED_REGRESSION_METRICS if c not in runs.columns]
+    if missing:
+        raise ValueError(f"Candidate regression runs missing required metrics: {missing}")
+
+    runs = runs.dropna(subset=list(REQUIRED_REGRESSION_METRICS)).copy()
+
+    client = mlflow.tracking.MlflowClient()
+    has_model = runs["run_id"].apply(lambda rid: _has_logged_model(client, rid))
+    runs = runs[has_model].copy()
+    return runs.reset_index(drop=True)
+
+
+def select_champion_regressor(
+    runs: Optional[pd.DataFrame] = None,
+    tracking_uri: Optional[str] = None,
+    experiment_name: str = MLFLOW_EXPERIMENT_NAME,
+) -> RegressorChampionSelection:
+    """
+    Regression Model Gate: same fetch/filter logic as select_champion_run, but
+    restricted to params.task == 'regression' runs and ranked by the lowest
+    test RMSE instead of the highest PR-AUC.
+    """
+    if runs is None:
+        runs = fetch_candidate_regression_runs(
+            experiment_name=experiment_name,
+            tracking_uri=tracking_uri,
+        )
+    if runs.empty:
+        raise ValueError(
+            "No eligible regression runs found for the Model Gate "
+            f"(experiment={experiment_name!r}). Train with --task regression first."
+        )
+
+    best_idx = runs["metrics.rmse_test"].idxmin()
+    best = runs.loc[best_idx]
+
+    run_name = str(best.get("tags.mlflow.runName", "unnamed"))
+    model_type = str(best.get("params.model_type", run_name))
+    run_id = str(best["run_id"])
+
+    return RegressorChampionSelection(
+        run_id=run_id,
+        run_name=run_name,
+        model_type=model_type,
+        model_uri=f"runs:/{run_id}/model",
+        rmse_test=float(best["metrics.rmse_test"]),
+        mae_test=float(best["metrics.mae_test"]),
+        r2_test=float(best["metrics.r2_test"]),
+    )
+
+
+def explain_regression_selection(selection: RegressorChampionSelection) -> str:
+    return "\n".join(
+        [
+            "=== KW Water-Main Regression Model Gate ===",
+            "Primary metric     : rmse_test (lower is better)",
+            f"Champion run       : {selection.run_name} ({selection.run_id})",
+            f"Model type         : {selection.model_type}",
+            f"Model URI          : {selection.model_uri}",
+            f"RMSE test          : {selection.rmse_test:.6f}",
+            f"MAE test           : {selection.mae_test:.6f}",
+            f"R2 test            : {selection.r2_test:.6f}",
+            f"Summary            : {selection.summary()}",
+        ]
+    )
 
 
 def compute_overfit_f1_gap(runs: pd.DataFrame) -> pd.DataFrame:
