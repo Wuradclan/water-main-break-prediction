@@ -54,13 +54,20 @@ def test_predict_pipe_features():
         prior_break_count=3.0,
         years_since_last_break=0.75,
     )
-    response = asyncio.run(predict(payload))
+    response = asyncio.run(predict(payload, threshold=0.5))
     body = response.model_dump()
     assert body["break_within_horizon"] in (0, 1)
     assert 0.0 <= body["probability"] <= 1.0
     assert body["model_type"]
     assert body["run_id"]
     assert "pr_auc_test" in body
+    if body["break_within_horizon"] == 1:
+        # When a regressor champion is loaded, years estimate must be present and >= 0
+        years = body.get("estimated_years_until_break")
+        if years is not None:
+            assert years >= 0.0
+    else:
+        assert body.get("estimated_years_until_break") is None
 
 
 def test_predict_zero_prior_requires_null_years():
@@ -78,7 +85,8 @@ def test_predict_zero_prior_requires_null_years():
                     age_years=30.0,
                     prior_break_count=0,
                     years_since_last_break=5.0,
-                )
+                ),
+                threshold=0.5,
             )
         )
 
@@ -91,7 +99,8 @@ def test_predict_zero_prior_requires_null_years():
                 age_years=30.0,
                 prior_break_count=0,
                 years_since_last_break=None,
-            )
+            ),
+            threshold=0.5,
         )
     )
     assert ok.break_within_horizon in (0, 1)
