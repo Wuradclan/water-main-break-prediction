@@ -6,6 +6,14 @@ Emplacement : app/pages/2_Modeles.py
 Dépend des endpoints ajoutés à api/main.py :
     GET    /models
     DELETE /models/{run_id}?force=true|false
+
+GET /models renvoie des runs de classification (break_within_horizon :
+PR-AUC/F1/ROC-AUC) et de régression (years_until_break : RMSE/MAE/R²), avec
+`null` pour les métriques qui ne s'appliquent pas à un run donné. Après
+pd.DataFrame(models), ces `null` deviennent des NaN pandas : tout le
+formatage ci-dessous passe donc par des helpers pd.isna-safe
+(app/formatting.py) plutôt que par des comparaisons `is not None` qui
+laisseraient échapper des "nan" / "nan / nan" à l'affichage.
 """
 
 from __future__ import annotations
@@ -16,13 +24,28 @@ import pandas as pd
 import requests
 import streamlit as st
 
+try:
+    # Exécution Streamlit réelle : le dossier app/ (contenant streamlit_app.py)
+    # est ajouté à sys.path, donc les imports "à plat" fonctionnent.
+    from formatting import format_f1_pair, format_metric
+except ModuleNotFoundError:
+    # Exécution hors Streamlit (ex: pytest depuis la racine du repo) : le
+    # package namespace "app" est importable directement.
+    from app.formatting import format_f1_pair, format_metric
+
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
+
+TASK_LABELS = {
+    "classification": "Classification",
+    "regression": "Régression",
+}
 
 st.set_page_config(page_title="Modèles entraînés", page_icon="📦", layout="wide")
 
 st.title("📦 Modèles entraînés")
 st.caption(
-    "Liste des runs MLflow de premier niveau (essais Optuna imbriqués masqués). "
+    "Liste des runs MLflow de premier niveau (essais Optuna imbriqués masqués), "
+    "classification et régression confondues. "
     "Le champion actuellement chargé en mémoire est repéré par 🏆."
 )
 
@@ -45,6 +68,10 @@ def fetch_models(include_deleted: bool = False) -> list[dict]:
         return []
 
 
+def task_label(task: str | None) -> str:
+    return TASK_LABELS.get(task, task or "classification")
+
+
 include_deleted = st.checkbox("Afficher aussi les modèles déjà supprimés", value=False)
 
 if st.button("🔄 Rafraîchir la liste"):
@@ -59,18 +86,27 @@ if not models:
 df = pd.DataFrame(models)
 
 df["Champion"] = df["is_current_champion"].apply(lambda x: "🏆" if x else "")
-df["PR-AUC test"] = df["pr_auc_test"].apply(lambda v: f"{v:.3f}" if v is not None else "—")
+if "task" not in df.columns:
+    df["task"] = "classification"
+df["Tâche"] = df["task"].apply(task_label)
+
+# Classification metrics — "—" for regression runs (NaN after pd.DataFrame(models)).
+df["PR-AUC test"] = df["pr_auc_test"].apply(format_metric)
 df["F1 train/test"] = df.apply(
-    lambda r: f"{r['f1_train']:.3f} / {r['f1_test']:.3f}"
-    if r["f1_train"] is not None and r["f1_test"] is not None
-    else "—",
-    axis=1,
+    lambda r: format_f1_pair(r.get("f1_train"), r.get("f1_test")), axis=1
 )
-df["ROC-AUC test"] = df["roc_auc_test"].apply(lambda v: f"{v:.3f}" if v is not None else "—")
+df["ROC-AUC test"] = df["roc_auc_test"].apply(format_metric)
+
+# Regression metrics — "—" for classification runs (NaN after pd.DataFrame(models)).
+df["RMSE test"] = df["rmse_test"].apply(format_metric)
+df["MAE test"] = df["mae_test"].apply(format_metric)
+df["R² test"] = df["r2_test"].apply(format_metric)
 
 display_df = df[[
-    "Champion", "run_name", "model_type", "horizon_years",
-    "PR-AUC test", "F1 train/test", "ROC-AUC test", "status", "start_time", "run_id",
+    "Champion", "run_name", "Tâche", "model_type", "horizon_years",
+    "PR-AUC test", "F1 train/test", "ROC-AUC test",
+    "RMSE test", "MAE test", "R² test",
+    "status", "start_time", "run_id",
 ]].rename(columns={
     "run_name": "Nom du run",
     "model_type": "Modèle",
@@ -86,19 +122,42 @@ st.dataframe(display_df, use_container_width=True, hide_index=True)
 st.markdown("---")
 st.subheader("🗑️ Supprimer un modèle")
 
-run_labels = {
-    f"{m['run_name']} — {m['model_type']} ({m['run_id'][:8]}...)" +
-    (" 🏆 CHAMPION ACTIF" if m["is_current_champion"] else ""): m["run_id"]
-    for m in models
-}
+
+def run_label(m: dict) -> str:
+    label = f"{m['run_name']} — {task_label(m.get('task'))} — {m['model_type']} ({m['run_id'][:8]}...)"
+    if m["is_current_champion"]:
+        label += " 🏆 CHAMPION ACTIF"
+    return label
+
+
+run_labels = {run_label(m): m["run_id"] for m in models}
 
 selected_label = st.selectbox("Choisir le run à supprimer", options=list(run_labels.keys()))
 selected_run_id = run_labels[selected_label]
 selected_model = next(m for m in models if m["run_id"] == selected_run_id)
 
+st.caption(
+    f"Tâche : **{task_label(selected_model.get('task'))}** · "
+    f"Modèle : `{selected_model['model_type']}`"
+)
+
+detail_cols = st.columns(3)
+if selected_model.get("task") == "regression":
+    detail_cols[0].metric("RMSE test", format_metric(selected_model.get("rmse_test")))
+    detail_cols[1].metric("MAE test", format_metric(selected_model.get("mae_test")))
+    detail_cols[2].metric("R² test", format_metric(selected_model.get("r2_test")))
+else:
+    detail_cols[0].metric("PR-AUC test", format_metric(selected_model.get("pr_auc_test")))
+    detail_cols[1].metric(
+        "F1 train/test",
+        format_f1_pair(selected_model.get("f1_train"), selected_model.get("f1_test")),
+    )
+    detail_cols[2].metric("ROC-AUC test", format_metric(selected_model.get("roc_auc_test")))
+
 if selected_model["is_current_champion"]:
     st.warning(
-        "⚠️ Ce run est actuellement le **champion chargé en mémoire** par l'API. "
+        "⚠️ Ce run est actuellement le **champion chargé en mémoire** par l'API "
+        f"({task_label(selected_model.get('task'))}). "
         "Le supprimer forcera un rechargement du prochain meilleur modèle disponible "
         "la prochaine fois que quelqu'un cliquera sur « Recharger le champion »."
     )
