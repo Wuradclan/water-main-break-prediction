@@ -45,9 +45,9 @@ from src.model_gate import (
 from src.schema import FEATURE_COLUMNS, INFERENCE_INPUT_COLUMNS, TARGET_COLUMN
 
 try:
-    from src.config import MLFLOW_EXPERIMENT_NAME
+    from src.config import CLASSIFICATION_THRESHOLD, MLFLOW_EXPERIMENT_NAME
 except ModuleNotFoundError:
-    from config import MLFLOW_EXPERIMENT_NAME
+    from config import CLASSIFICATION_THRESHOLD, MLFLOW_EXPERIMENT_NAME
 
 
 app = FastAPI(
@@ -374,7 +374,7 @@ def health():
 @app.post("/predict", response_model=PipeBreakPredictionResponse)
 async def predict(
     payload: PipeBreakRequest,
-    threshold: float = Query(0.5, ge=0.0, le=1.0),
+    threshold: float = Query(CLASSIFICATION_THRESHOLD, ge=0.0, le=1.0),
 ):
     if best_model is None or champion_info is None:
         raise HTTPException(
@@ -388,7 +388,7 @@ async def predict(
     # resolved default. Fall back to 0.5 in that case; real HTTP calls are
     # unaffected since FastAPI already resolves the float before this point.
     if not isinstance(threshold, (int, float)):
-        threshold = 0.5
+        threshold = CLASSIFICATION_THRESHOLD
 
     try:
         if payload.prior_break_count == 0 and payload.years_since_last_break is not None:

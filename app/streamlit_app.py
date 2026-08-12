@@ -25,6 +25,37 @@ from datetime import date
 import requests
 import streamlit as st
 
+try:
+    # Exécution Streamlit réelle : le dossier app/ (contenant streamlit_app.py)
+    # est ajouté à sys.path, donc les imports "à plat" fonctionnent.
+    from risk_messaging import (
+        CLASSIFICATION_THRESHOLD,
+        HORIZON_YEARS,
+        REGRESSION_UNCERTAINTY_NOTICE,
+        classification_risk_message,
+        classify_risk_level,
+        detect_prediction_divergence,
+        divergence_warning_message,
+        parse_horizon_years,
+        probability_and_threshold_caption,
+        regression_indicative_message,
+    )
+except ModuleNotFoundError:
+    # Exécution hors Streamlit (ex: pytest depuis la racine du repo) : le
+    # package namespace "app" est importable directement.
+    from app.risk_messaging import (
+        CLASSIFICATION_THRESHOLD,
+        HORIZON_YEARS,
+        REGRESSION_UNCERTAINTY_NOTICE,
+        classification_risk_message,
+        classify_risk_level,
+        detect_prediction_divergence,
+        divergence_warning_message,
+        parse_horizon_years,
+        probability_and_threshold_caption,
+        regression_indicative_message,
+    )
+
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
 
@@ -206,7 +237,7 @@ threshold = st.sidebar.slider(
     "Seuil de décision",
     min_value=0.0,
     max_value=1.0,
-    value=0.5,
+    value=CLASSIFICATION_THRESHOLD,
     step=0.01,
     help="La classe 1 est prédite si la probabilité est supérieure ou égale à ce seuil.",
 )
@@ -221,8 +252,9 @@ st.title("Risque de rupture de conduite — Kitchener-Waterloo")
 
 model_info = fetch_model_info()
 champion = model_info.get("champion") or {}
-horizon_years = champion.get("horizon_years", 5)
+horizon_years = champion.get("horizon_years", HORIZON_YEARS)
 horizon_label = format_horizon(horizon_years)
+effective_horizon_years = parse_horizon_years(horizon_years, default=HORIZON_YEARS)
 
 regressor_info = fetch_regressor_info()
 regressor_champion = regressor_info.get("champion") or {}
@@ -353,28 +385,43 @@ if predict_clicked:
             probability = float(result["probability"])
             threshold_used = float(result.get("threshold", threshold))
 
-            if label == 1:
-                st.error(
-                    f"**Classe prédite = 1** — rupture probable dans {horizon_label} "
-                    f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
-                )
-
-                estimated_years = result.get("estimated_years_until_break")
-                if estimated_years is not None:
-                    estimated_calendar_year = date.today().year + round(float(estimated_years))
-                    st.warning(
-                        f"⏳ **Estimation du temps avant rupture** : environ "
-                        f"**{float(estimated_years):.1f} ans**, soit vers **{estimated_calendar_year}**."
-                    )
+            # Qualitative risk narrative, framed around the centralized
+            # CLASSIFICATION_THRESHOLD (not the user-adjustable slider): a
+            # calibrated probability close to the standard 50% decision
+            # boundary is never stated as a categorical certainty.
+            risk_level = classify_risk_level(probability)
+            risk_message = classification_risk_message(probability, horizon_years=effective_horizon_years)
+            if risk_level == "uncertain":
+                st.warning(f"⚠️ {risk_message}")
+            elif risk_level == "high":
+                st.error(f"🔺 {risk_message}")
             else:
-                st.success(
-                    f"**Classe prédite = 0** — aucune rupture prédite dans {horizon_label} "
-                    f"(probabilité = **{probability:.1%}**, seuil = **{threshold_used:.2f}**)."
+                st.success(f"✅ {risk_message}")
+
+            # Toujours afficher la probabilité calibrée et le seuil, quel que
+            # soit le niveau de risque affiché ci-dessus.
+            st.caption(probability_and_threshold_caption(probability, horizon_years=effective_horizon_years))
+            st.caption(
+                f"Décision brute au seuil sélectionné (**{threshold_used:.2f}**) : "
+                f"classe prédite = **{label}**."
+            )
+
+            estimated_years = result.get("estimated_years_until_break")
+            if estimated_years is not None:
+                estimated_years = float(estimated_years)
+                st.info(
+                    "⏳ " + regression_indicative_message(estimated_years, reference_year=date.today().year)
                 )
+                st.caption(f"ℹ️ {REGRESSION_UNCERTAINTY_NOTICE}")
+
+                if detect_prediction_divergence(probability, estimated_years, horizon_years=effective_horizon_years):
+                    st.warning(
+                        divergence_warning_message(probability, estimated_years, horizon_years=effective_horizon_years)
+                    )
 
             m1, m2, m3 = st.columns(3)
-            m1.metric("Classe", label)
-            m2.metric("P(rupture)", f"{probability:.3f}")
+            m1.metric("Classe (seuil sélectionné)", label)
+            m2.metric("P(rupture) calibrée", f"{probability:.3f}")
             m3.metric("PR-AUC champion", f"{float(result.get('pr_auc_test', 0)):.3f}")
 
             st.caption(

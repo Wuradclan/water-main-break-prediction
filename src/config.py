@@ -41,6 +41,37 @@ TEMPORAL_SPLIT_DATE = "2015-01-01"
 NEGATIVE_OFFSETS_BEFORE_POSITIVE_YEARS = (1, 2, 3, 4, 5)
 
 # ---------------------------------------------------------------------------
+# Classification decision UI (single source of truth for the API and the
+# Streamlit app — avoids re-declaring 0.50 / 0.05 literals in several files).
+# ---------------------------------------------------------------------------
+# Default operating point used to turn P(break_within_horizon) into a binary
+# decision. This is the *reference* threshold used to frame the qualitative
+# risk narrative (low / uncertain / high) shown in the UI; the API still lets
+# power users pick another operating threshold for the raw class label.
+CLASSIFICATION_THRESHOLD = 0.50
+
+# Half-width of the "uncertain" zone around CLASSIFICATION_THRESHOLD. A
+# calibrated probability within [THRESHOLD - MARGIN, THRESHOLD + MARGIN] is
+# considered too close to the decision boundary to be stated categorically.
+THRESHOLD_MARGIN = 0.05
+
+# ---------------------------------------------------------------------------
+# Probability calibration (CalibratedClassifierCV)
+# ---------------------------------------------------------------------------
+# Number of CV folds used by CalibratedClassifierCV. The split happens
+# strictly inside the training data (X_train/y_train) — the test set is never
+# touched during calibration, so there is no leakage into pr_auc_test/etc.
+CALIBRATION_CV_FOLDS = 5
+
+# "isotonic" is a flexible, non-parametric calibration map but it overfits on
+# small or highly imbalanced datasets. It is only selected when the training
+# set has at least this many rows AND the minority class represents at least
+# CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC of it; otherwise the more
+# constrained "sigmoid" (Platt scaling) map is used.
+CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC = 1000
+CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC = 0.10
+
+# ---------------------------------------------------------------------------
 # Training / Model Gate (classification)
 # ---------------------------------------------------------------------------
 MLFLOW_EXPERIMENT_NAME = "KW_Water_Main_Break_Risk"

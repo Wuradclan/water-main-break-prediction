@@ -13,6 +13,7 @@ import optuna
 import pandas as pd
 from category_encoders import TargetEncoder
 from mlflow.models import infer_signature
+from sklearn.calibration import CalibratedClassifierCV, calibration_curve
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import (
     ExtraTreesClassifier,
@@ -24,6 +25,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ridge
 from sklearn.metrics import (
     average_precision_score,
+    brier_score_loss,
     f1_score,
     mean_absolute_error,
     mean_squared_error,
@@ -42,6 +44,9 @@ os.environ["GIT_PYTHON_REFRESH"] = "quiet"
 
 try:
     from src.config import (
+        CALIBRATION_CV_FOLDS,
+        CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC,
+        CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC,
         HORIZON_YEARS,
         MLFLOW_EXPERIMENT_NAME,
         OVERFIT_F1_GAP_THRESHOLD,
@@ -61,6 +66,9 @@ try:
     from src.schema import FEATURE_COLUMNS, REGRESSION_TARGET_COLUMN, TARGET_COLUMN
 except ModuleNotFoundError:
     from config import (
+        CALIBRATION_CV_FOLDS,
+        CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC,
+        CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC,
         HORIZON_YEARS,
         MLFLOW_EXPERIMENT_NAME,
         OVERFIT_F1_GAP_THRESHOLD,
@@ -243,6 +251,58 @@ def predict_proba_positive(pipeline, X) -> np.ndarray:
         scores = np.asarray(pipeline.decision_function(X), dtype=float)
         return 1.0 / (1.0 + np.exp(-scores))
     return np.asarray(pipeline.predict(X), dtype=float)
+
+
+def choose_calibration_method(
+    y_train,
+    min_samples_for_isotonic: int = CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC,
+    min_minority_fraction_for_isotonic: float = CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC,
+) -> str:
+    """Pick a CalibratedClassifierCV method without touching the test set.
+
+    "isotonic" is non-parametric and can fit calibration curves more closely,
+    but it needs enough samples per CV fold (especially positives) to avoid
+    overfitting the calibration map itself. "sigmoid" (Platt scaling) is a
+    safer default on small or imbalanced training sets.
+    """
+    y_train = np.asarray(y_train).astype(int)
+    n_samples = int(len(y_train))
+    if n_samples == 0:
+        return "sigmoid"
+    minority_fraction = float(min(np.mean(y_train == 1), np.mean(y_train == 0)))
+    if n_samples >= min_samples_for_isotonic and minority_fraction >= min_minority_fraction_for_isotonic:
+        return "isotonic"
+    return "sigmoid"
+
+
+def _log_calibration_curve(y_true, y_proba, model_type: str, n_bins: int = 10) -> None:
+    """Log a reliability diagram (predicted vs. observed frequency) to MLflow.
+
+    Best-effort only: calibration is still evaluated via the Brier score even
+    if plotting is unavailable (e.g. matplotlib missing at runtime), so this
+    never fails the training run.
+    """
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+
+        fraction_of_positives, mean_predicted_value = calibration_curve(
+            y_true, y_proba, n_bins=n_bins, strategy="quantile"
+        )
+        fig, ax = plt.subplots(figsize=(5, 5))
+        ax.plot([0, 1], [0, 1], linestyle="--", color="grey", label="Calibration parfaite")
+        ax.plot(mean_predicted_value, fraction_of_positives, marker="o", label=model_type)
+        ax.set_xlabel("Probabilité prédite (moyenne par bin)")
+        ax.set_ylabel("Fréquence observée de la classe positive")
+        ax.set_title(f"Courbe de calibration — {model_type} (test)")
+        ax.legend(loc="best")
+        fig.tight_layout()
+        mlflow.log_figure(fig, "calibration_curve_test.png")
+        plt.close(fig)
+    except Exception as exc:  # pragma: no cover - purely cosmetic artifact
+        print(f"⚠️  Calibration plot skipped ({exc}).", flush=True)
 
 
 def recall_at_k(y_true, y_proba, k_fraction: float = RECALL_AT_K_FRACTION) -> float:
@@ -518,15 +578,38 @@ def train_evaluate_and_log(
     cv_pred = (cv_proba >= 0.5).astype(int)
     cv_metrics = calculate_classification_metrics(y_train, cv_pred, cv_proba)
 
-    pipeline.fit(X_train, y_train)
+    # --- Probability calibration -------------------------------------------------
+    # CalibratedClassifierCV(cv=<int>) clones `pipeline` (discarding any prior
+    # fit state) and, for each of the CALIBRATION_CV_FOLDS folds, fits it on
+    # the fold's training rows and learns the calibration map on the held-out
+    # rows — entirely inside X_train/y_train. X_test is never touched here, so
+    # there is no leakage into the test metrics computed below.
+    calibration_method = choose_calibration_method(y_train)
+    print(
+        f"[Étape] Calibrage des probabilités ({calibration_method}, "
+        f"cv={CALIBRATION_CV_FOLDS}) pour {model_type}...",
+        flush=True,
+    )
+    calibrated_pipeline = CalibratedClassifierCV(
+        estimator=pipeline,
+        method=calibration_method,
+        cv=CALIBRATION_CV_FOLDS,
+    )
+    calibrated_pipeline.fit(X_train, y_train)
 
-    train_proba = predict_proba_positive(pipeline, X_train)
-    train_pred = pipeline.predict(X_train)
+    # The calibrated wrapper is the model actually saved/served — its
+    # predict_proba is what /predict exposes to the Streamlit app.
+    train_proba = predict_proba_positive(calibrated_pipeline, X_train)
+    train_pred = calibrated_pipeline.predict(X_train)
     train_metrics = calculate_classification_metrics(y_train, train_pred, train_proba)
 
-    test_proba = predict_proba_positive(pipeline, X_test)
-    test_pred = pipeline.predict(X_test)
+    test_proba = predict_proba_positive(calibrated_pipeline, X_test)
+    test_pred = calibrated_pipeline.predict(X_test)
     test_metrics = calculate_classification_metrics(y_test, test_pred, test_proba)
+
+    brier_train = float(brier_score_loss(y_train, train_proba))
+    brier_test = float(brier_score_loss(y_test, test_proba))
+    _log_calibration_curve(y_test, test_proba, model_type)
 
     optuna_score, overfit_cv_gap = build_optuna_score(cv_metrics["pr_auc"], train_metrics["f1"], cv_metrics["f1"])
     overfit_f1_gap = float(max(0.0, train_metrics["f1"] - test_metrics["f1"]))
@@ -548,12 +631,15 @@ def train_evaluate_and_log(
         "optuna_score": optuna_score,
         "overfit_threshold": float(OVERFIT_F1_GAP_THRESHOLD),
         "passes_overfit_gate": float(overfit_f1_gap <= OVERFIT_F1_GAP_THRESHOLD),
+        "brier_train": brier_train,
+        "brier_test": brier_test,
     }
 
     if is_optimized and params is not None:
         params = {**params, "optimized": True}
+    params = {**(params or {}), "calibration_method": calibration_method}
 
-    log_and_save_model(pipeline, metrics, model_path, model_type, X_example=X_train, params=params)
+    log_and_save_model(calibrated_pipeline, metrics, model_path, model_type, X_example=X_train, params=params)
     return metrics
 
 
