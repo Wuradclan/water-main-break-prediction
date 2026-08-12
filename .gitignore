@@ -14,6 +14,7 @@ mlflow.db
 __pycache__/
 *.pyc
 logs/
+training_jobs/
 .DS_Store
 
 # Modèles binaires

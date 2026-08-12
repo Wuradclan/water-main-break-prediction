@@ -1,5 +1,8 @@
 FROM python:3.11-slim
 WORKDIR /app
+
+# L'entraînement est déclenché via FastAPI (pas de socket Docker ici).
+
 COPY requirements.txt .
 #RUN pip install -r requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

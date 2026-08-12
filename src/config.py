@@ -9,8 +9,6 @@ raw_breaks_path = project_root / "data" / "raw" / "Water_Main_Breaks.csv"
 processed_snapshots_path = project_root / "data" / "processed" / "pipe_break_snapshots.csv"
 dataset_checksums_path = project_root / "data" / "SHA256SUMS"
 
-# Legacy aircraft path retained temporarily until later cleanup phases.
-file_path = project_root / "data" / "Aiplane_BlueBook.csv"
 
 # ---------------------------------------------------------------------------
 # Labeling / prediction horizon
