@@ -15,6 +15,7 @@ Phase 6 (UI entraînement) :
 
 from __future__ import annotations
 
+import math
 import subprocess
 import threading
 import traceback
@@ -654,6 +655,31 @@ def training_status(job_id: str):
     }
 
 
+def json_safe_float(value):
+    """
+    Coerce an MLflow metric value into a strict-JSON-compliant float.
+
+    mlflow.search_runs() returns a DataFrame where metrics missing for a
+    given run (e.g. rmse_test on a classification run, pr_auc_test on a
+    regression run) show up as NaN. Python's json module (which FastAPI's
+    default encoder uses under the hood) refuses to serialize NaN/Infinity
+    ("Out of range float values are not JSON compliant"), so every metric
+    must be sanitized before it reaches the response body.
+    """
+    if value is None:
+        return None
+    try:
+        numeric_value = float(value)
+    except (TypeError, ValueError):
+        return None
+    return numeric_value if math.isfinite(numeric_value) else None
+
+
+def _safe_str(value, default: str = "—") -> str:
+    """String-ify a pandas cell, falling back to `default` for NaN/NA/None."""
+    return str(value) if pd.notna(value) else default
+
+
 @app.get("/models")
 def list_models(
     include_deleted: bool = Query(False, description="Inclure les runs déjà supprimés (soft delete)"),
@@ -663,7 +689,10 @@ def list_models(
     avec leurs métriques principales et un indicateur si c'est le champion actif.
 
     Couvre à la fois les runs de classification (break_within_horizon) et de
-    régression (years_until_break, params.task == 'regression').
+    régression (years_until_break, params.task == 'regression'). Les deux
+    familles de runs ont des métriques disjointes (PR-AUC/F1/ROC-AUC vs
+    RMSE/MAE/R2) : les métriques non applicables à un run sont renvoyées à
+    `null` plutôt qu'omises, pour que la page Streamlit affiche « — ».
     """
     try:
         tracking_uri = resolve_tracking_uri()
@@ -700,22 +729,34 @@ def list_models(
             run_id = row.get("run_id")
             raw_task = row.get("params.task")
             task = str(raw_task) if pd.notna(raw_task) else "classification"
+
+            raw_horizon = row.get("params.horizon_years")
+            horizon_years = None
+            if pd.notna(raw_horizon):
+                try:
+                    horizon_years = int(float(raw_horizon))
+                except (TypeError, ValueError):
+                    horizon_years = None
+
+            raw_start_time = row.get("start_time")
+            start_time = str(raw_start_time) if pd.notna(raw_start_time) else None
+
             models.append(
                 {
                     "run_id": run_id,
-                    "run_name": str(row.get("tags.mlflow.runName", "—")),
+                    "run_name": _safe_str(row.get("tags.mlflow.runName")),
                     "task": task,
-                    "model_type": str(row.get("params.model_type", "—")),
-                    "horizon_years": row.get("params.horizon_years", "—"),
-                    "pr_auc_test": row.get("metrics.pr_auc_test"),
-                    "f1_train": row.get("metrics.f1_train"),
-                    "f1_test": row.get("metrics.f1_test"),
-                    "roc_auc_test": row.get("metrics.roc_auc_test"),
-                    "rmse_test": row.get("metrics.rmse_test"),
-                    "mae_test": row.get("metrics.mae_test"),
-                    "r2_test": row.get("metrics.r2_test"),
-                    "start_time": str(row.get("start_time")),
-                    "status": row.get("status"),
+                    "model_type": _safe_str(row.get("params.model_type")),
+                    "horizon_years": horizon_years,
+                    "pr_auc_test": json_safe_float(row.get("metrics.pr_auc_test")),
+                    "f1_train": json_safe_float(row.get("metrics.f1_train")),
+                    "f1_test": json_safe_float(row.get("metrics.f1_test")),
+                    "roc_auc_test": json_safe_float(row.get("metrics.roc_auc_test")),
+                    "rmse_test": json_safe_float(row.get("metrics.rmse_test")),
+                    "mae_test": json_safe_float(row.get("metrics.mae_test")),
+                    "r2_test": json_safe_float(row.get("metrics.r2_test")),
+                    "start_time": start_time,
+                    "status": _safe_str(row.get("status")),
                     "is_current_champion": run_id == current_champion_id
                     or run_id == current_regressor_champion_id,
                 }

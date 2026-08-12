@@ -15,15 +15,20 @@ local MLflow file store for the /models list/delete lifecycle.
 
 from __future__ import annotations
 
+import json
+import math
+
 import mlflow
 import pytest
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 
 import api.main as api_main
 from api.main import (
     CLASSIFICATION_TRAINING_MODELS,
     REGRESSION_TRAINING_MODELS,
     delete_model,
+    json_safe_float,
     list_models,
     start_training,
     training_status,
@@ -399,3 +404,104 @@ def test_list_models_returns_error_when_experiment_missing(tmp_path, monkeypatch
     body = list_models()
     assert body["status"] == "error"
     assert body["models"] == []
+
+
+# ---------------------------------------------------------------------------
+# GET /models — NaN/Infinity sanitization regression test
+#
+# mlflow.search_runs() returns one DataFrame for ALL runs in the experiment.
+# Classification runs don't log rmse_test/mae_test/r2_test and regression
+# runs don't log pr_auc_test/f1_train/f1_test/roc_auc_test, so those columns
+# come back as NaN for the runs that didn't log them. Starlette's
+# JSONResponse serializes with allow_nan=False, so any leftover NaN/Infinity
+# in the response body previously caused a 500
+# ("Out of range float values are not JSON compliant").
+# ---------------------------------------------------------------------------
+
+
+def test_json_safe_float_rejects_non_finite_values():
+    assert json_safe_float(None) is None
+    assert json_safe_float(float("nan")) is None
+    assert json_safe_float(float("inf")) is None
+    assert json_safe_float(float("-inf")) is None
+    assert json_safe_float("not-a-number") is None
+    assert json_safe_float(0.8241) == pytest.approx(0.8241)
+    assert json_safe_float(0) == 0.0
+
+
+def _assert_no_non_finite_floats(obj) -> None:
+    """Recursively walk a decoded JSON value and fail on any NaN/Infinity float."""
+    if isinstance(obj, float):
+        assert math.isfinite(obj), f"non-finite float leaked into the JSON response: {obj!r}"
+    elif isinstance(obj, dict):
+        for value in obj.values():
+            _assert_no_non_finite_floats(value)
+    elif isinstance(obj, (list, tuple)):
+        for value in obj:
+            _assert_no_non_finite_floats(value)
+
+
+def test_models_endpoint_sanitizes_disjoint_classification_and_regression_metrics(
+    tmp_path, monkeypatch
+):
+    tracking_uri = f"file://{tmp_path}/mlruns_disjoint_metrics"
+    monkeypatch.setattr(api_main, "resolve_tracking_uri", lambda *a, **kw: tracking_uri)
+
+    mlflow.set_tracking_uri(tracking_uri)
+    mlflow.set_experiment(api_main.MLFLOW_EXPERIMENT_NAME)
+
+    # Classification run: logs PR-AUC/F1/ROC-AUC, never logs RMSE/MAE/R2.
+    with mlflow.start_run(run_name="run_04_xgboost"):
+        mlflow.log_param("model_type", "xgboost")
+        mlflow.log_param("horizon_years", 5)
+        mlflow.log_metric("pr_auc_test", 0.82)
+        mlflow.log_metric("f1_train", 0.70)
+        mlflow.log_metric("f1_test", 0.65)
+        mlflow.log_metric("roc_auc_test", 0.88)
+
+    # Regression run: logs RMSE/MAE/R2, never logs PR-AUC/F1/ROC-AUC.
+    with mlflow.start_run(run_name="run_reg_xgb_reg"):
+        mlflow.log_param("model_type", "xgb_reg")
+        mlflow.log_param("task", "regression")
+        mlflow.log_metric("rmse_test", 1.1)
+        mlflow.log_metric("mae_test", 0.9)
+        mlflow.log_metric("r2_test", 0.4)
+
+    body = list_models()
+    assert body["status"] == "success"
+    assert len(body["models"]) == 2
+
+    # Reproduce exactly what FastAPI does when an endpoint returns a dict:
+    # jsonable_encoder() followed by json.dumps(..., allow_nan=False), the
+    # same call Starlette's JSONResponse makes and the source of the 500.
+    encoded = jsonable_encoder(body)
+    raw_json = json.dumps(encoded, allow_nan=False)  # must not raise ValueError
+    decoded = json.loads(raw_json)  # response.json() must be decodable
+
+    _assert_no_non_finite_floats(decoded)
+
+    by_model_type = {m["model_type"]: m for m in decoded["models"]}
+    classification_model = by_model_type["xgboost"]
+    regression_model = by_model_type["xgb_reg"]
+
+    assert classification_model["task"] == "classification"
+    assert classification_model["pr_auc_test"] == pytest.approx(0.82)
+    assert classification_model["f1_train"] == pytest.approx(0.70)
+    assert classification_model["f1_test"] == pytest.approx(0.65)
+    assert classification_model["roc_auc_test"] == pytest.approx(0.88)
+    # Not applicable to a classification run: null, not NaN, and not omitted.
+    assert "rmse_test" in classification_model
+    assert classification_model["rmse_test"] is None
+    assert classification_model["mae_test"] is None
+    assert classification_model["r2_test"] is None
+
+    assert regression_model["task"] == "regression"
+    assert regression_model["rmse_test"] == pytest.approx(1.1)
+    assert regression_model["mae_test"] == pytest.approx(0.9)
+    assert regression_model["r2_test"] == pytest.approx(0.4)
+    # Not applicable to a regression run: null, not NaN, and not omitted.
+    assert "pr_auc_test" in regression_model
+    assert regression_model["pr_auc_test"] is None
+    assert regression_model["f1_train"] is None
+    assert regression_model["f1_test"] is None
+    assert regression_model["roc_auc_test"] is None
