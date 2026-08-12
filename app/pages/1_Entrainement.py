@@ -8,6 +8,10 @@ Architecture :
 - Streamlit appelle POST /start-training sur FastAPI (réponse immédiate + job_id)
 - FastAPI lance docker exec dans un thread daemon et écrit les logs dans un fichier
 - Streamlit interroge GET /training-status/{job_id} toutes les ~3 s via st.fragment
+
+Deux tâches sont proposées :
+- Classification (break_within_horizon) : modèles historiques + horizon de prédiction
+- Régression (years_until_break) : estime le délai avant rupture pour les pipes à risque
 """
 
 from __future__ import annotations
@@ -21,7 +25,12 @@ import streamlit as st
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
 
-MODEL_CHOICES = {
+TASK_CHOICES = {
+    "Classification — risque de rupture (break_within_horizon)": "classification",
+    "Régression — délai avant rupture (years_until_break)": "regression",
+}
+
+CLASSIFICATION_MODEL_CHOICES = {
     "Régression logistique": "logistic",
     "Ridge": "ridge",
     "Lasso": "lasso",
@@ -33,6 +42,14 @@ MODEL_CHOICES = {
     "MLP — Réseau de neurones": "mlp",
     "Stacking": "stacking",
     "H2O AutoML": "h2o",
+}
+
+REGRESSION_MODEL_CHOICES = {
+    "Régression linéaire": "linear",
+    "Ridge (régression)": "ridge_reg",
+    "Lasso (régression)": "lasso_reg",
+    "Random Forest (régression)": "rf_reg",
+    "XGBoost (régression)": "xgb_reg",
 }
 
 OPTUNA_PROGRESS_RE = re.compile(r"\[Optuna\] Essai (\d+)/(\d+)")
@@ -55,9 +72,9 @@ def job_is_active() -> bool:
     return status in {None, "pending", "running"}
 
 
-def render_champion_metrics(result: dict) -> None:
-    """Affiche les métriques du champion renvoyées par l'API."""
-    st.subheader("Résultat — modèle champion")
+def render_classification_metrics(result: dict) -> None:
+    """Affiche les métriques de classification (PR-AUC, F1, ROC-AUC, Recall@K)."""
+    st.subheader("Résultat — modèle champion (classification)")
     c1, c2, c3 = st.columns(3)
     c1.metric("PR-AUC test", f"{float(result.get('pr_auc_test', 0)):.4f}")
     c2.metric(
@@ -70,13 +87,26 @@ def render_champion_metrics(result: dict) -> None:
     roc = result.get("roc_auc_test")
     c4.metric("ROC-AUC test", f"{float(roc):.4f}" if roc is not None else "—")
     recall_k = result.get("recall_at_k_test")
-    c5.metric("recall@K test", f"{float(recall_k):.4f}" if recall_k is not None else "—")
+    c5.metric("Recall@K test", f"{float(recall_k):.4f}" if recall_k is not None else "—")
     c6.metric("Mode de sélection", str(result.get("selection_mode", "—")))
 
     st.caption(
         f"Modèle : `{result.get('model_type', '—')}` · "
         f"run `{result.get('run_id', '—')}` · "
         f"horizon {result.get('horizon_years', '—')} ans"
+    )
+
+
+def render_regression_metrics(result: dict) -> None:
+    """Affiche les métriques de régression (RMSE, MAE, R2)."""
+    st.subheader("Résultat — modèle champion (régression)")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("RMSE test", f"{float(result.get('rmse_test', 0)):.4f}")
+    c2.metric("MAE test", f"{float(result.get('mae_test', 0)):.4f}")
+    c3.metric("R2 test", f"{float(result.get('r2_test', 0)):.4f}")
+
+    st.caption(
+        f"Modèle : `{result.get('model_type', '—')}` · run `{result.get('run_id', '—')}`"
     )
 
 
@@ -105,22 +135,39 @@ if "job_status" not in st.session_state:
     st.session_state.job_status = None
 if "last_tune" not in st.session_state:
     st.session_state.last_tune = False
+if "last_task" not in st.session_state:
+    st.session_state.last_task = "classification"
 
 left_column, right_column = st.columns(2)
 
 with left_column:
+    selected_task_label = st.selectbox(
+        "Tâche à entraîner",
+        options=list(TASK_CHOICES.keys()),
+    )
+    task = TASK_CHOICES[selected_task_label]
+    is_classification = task == "classification"
+
+    model_choices = CLASSIFICATION_MODEL_CHOICES if is_classification else REGRESSION_MODEL_CHOICES
     selected_label = st.selectbox(
         "Algorithme à entraîner",
-        options=list(MODEL_CHOICES.keys()),
+        options=list(model_choices.keys()),
     )
-    model_type = MODEL_CHOICES[selected_label]
+    model_type = model_choices[selected_label]
 
-    horizon_years = st.selectbox(
-        "Horizon de prédiction",
-        options=[1, 2, 5],
-        index=2,
-        format_func=lambda value: f"{value} an" if value == 1 else f"{value} ans",
-    )
+    if is_classification:
+        horizon_years = st.selectbox(
+            "Horizon de prédiction",
+            options=[1, 2, 5],
+            index=2,
+            format_func=lambda value: f"{value} an" if value == 1 else f"{value} ans",
+        )
+    else:
+        horizon_years = 5
+        st.caption(
+            "L'horizon de prédiction ne s'applique qu'à la classification ; "
+            "la régression estime directement le délai (en années) avant la prochaine rupture."
+        )
 
 with right_column:
     optuna_supported = model_type != "h2o"
@@ -128,10 +175,11 @@ with right_column:
     if optuna_supported:
         tune = st.checkbox(
             "Activer l'optimisation Optuna",
-            value=(model_type == "xgboost"),
+            value=(model_type in {"xgboost", "xgb_reg"}),
             help=(
                 "Optuna recherche les meilleurs hyperparamètres en maximisant "
-                "le PR-AUC tout en pénalisant le surapprentissage F1."
+                "le PR-AUC (classification) ou en minimisant le RMSE (régression), "
+                "tout en pénalisant le surapprentissage."
             ),
         )
         if tune:
@@ -155,9 +203,11 @@ with right_column:
 # Aperçu de la commande qui sera exécutée côté API
 preview_parts = [
     "docker exec bris-aqueduc-trainer python -m src.train",
+    f"--task {task}",
     f"--model_type {model_type}",
-    f"--horizon_years {horizon_years}",
 ]
+if is_classification:
+    preview_parts.append(f"--horizon_years {horizon_years}")
 if tune:
     preview_parts.extend(["--tune", f"--n_trials {n_trials}"])
 
@@ -174,21 +224,21 @@ launch_button = st.button(
 
 if launch_button:
     try:
-        response = api_post(
-            "/start-training",
-            params={
-                "model_type": model_type,
-                "tune": tune,
-                "n_trials": n_trials,
-                "horizon_years": horizon_years,
-            },
-            timeout=10,
-        )
+        params = {
+            "task": task,
+            "model_type": model_type,
+            "tune": tune,
+            "n_trials": n_trials,
+        }
+        if is_classification:
+            params["horizon_years"] = horizon_years
+        response = api_post("/start-training", params=params, timeout=10)
         if response.status_code == 200:
             data = response.json()
             st.session_state.job_id = data["job_id"]
             st.session_state.job_status = data.get("status", "pending")
             st.session_state.last_tune = tune
+            st.session_state.last_task = data.get("task", task)
             st.success(f"Entraînement démarré — job_id=`{data['job_id']}`")
             st.rerun()
         elif response.status_code == 409:
@@ -232,6 +282,7 @@ def poll_training_status() -> None:
 
     data = response.json()
     status = data.get("status", "unknown")
+    job_task = data.get("task") or st.session_state.get("last_task", "classification")
     st.session_state.job_status = status
     log_tail = data.get("log_tail") or ""
     result = data.get("result")
@@ -268,16 +319,25 @@ def poll_training_status() -> None:
 
     if status == "completed":
         if result:
-            render_champion_metrics(result)
+            if job_task == "regression":
+                render_regression_metrics(result)
+            else:
+                render_classification_metrics(result)
         else:
             st.warning(
                 "Entraînement terminé, mais aucune métrique champion n'a été renvoyée. "
                 "Vérifie MLflow puis recharge le modèle manuellement."
             )
 
-        if st.button("🔄 Recharger le champion depuis MLflow", key="reload_after_train"):
+        reload_path = "/reload-regressor" if job_task == "regression" else "/reload-model"
+        reload_label = (
+            "🔄 Recharger le régresseur depuis MLflow"
+            if job_task == "regression"
+            else "🔄 Recharger le champion depuis MLflow"
+        )
+        if st.button(reload_label, key="reload_after_train"):
             try:
-                reload_resp = api_post("/reload-model", timeout=60)
+                reload_resp = api_post(reload_path, timeout=60)
                 if reload_resp.status_code == 200:
                     payload = reload_resp.json()
                     if payload.get("status") == "success":
@@ -313,21 +373,28 @@ poll_training_status()
 st.markdown("---")
 st.subheader("Commandes de référence")
 st.code(
-    """# Entraînement manuel classique
-docker exec bris-aqueduc-trainer python -m src.train --model_type logistic
-docker exec bris-aqueduc-trainer python -m src.train --model_type random_forest
+    """# Classification — entraînement manuel classique
+docker exec bris-aqueduc-trainer python -m src.train --task classification --model_type logistic
+docker exec bris-aqueduc-trainer python -m src.train --task classification --model_type random_forest
 
-# Optimisation Optuna
-docker exec bris-aqueduc-trainer python -m src.train --model_type xgboost --tune --n_trials 15
+# Classification — optimisation Optuna
+docker exec bris-aqueduc-trainer python -m src.train --task classification --model_type xgboost --tune --n_trials 15
 
-# H2O AutoML
-docker exec bris-aqueduc-trainer python -m src.train --model_type h2o""",
+# Classification — H2O AutoML
+docker exec bris-aqueduc-trainer python -m src.train --task classification --model_type h2o
+
+# Régression (years_until_break) — entraînement manuel classique
+docker exec bris-aqueduc-trainer python -m src.train --task regression --model_type linear
+docker exec bris-aqueduc-trainer python -m src.train --task regression --model_type rf_reg
+
+# Régression — optimisation Optuna
+docker exec bris-aqueduc-trainer python -m src.train --task regression --model_type xgb_reg --tune --n_trials 15""",
     language="bash",
 )
 
 st.info(
     "Après un entraînement réussi : utilise le bouton "
-    "« Recharger le champion depuis MLflow » ci-dessus (ou dans la page principale) "
+    "« Recharger le champion/régresseur depuis MLflow » ci-dessus (ou dans la page principale) "
     "afin que l'API FastAPI charge le nouveau modèle champion.",
     icon="💡",
 )

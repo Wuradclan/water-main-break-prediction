@@ -5,11 +5,22 @@ Phase 5:
 - Request schema = pipe physical / time-aware features (not aircraft)
 - Champion selection via src.model_gate (PR-AUC + F1 overfit gate)
 - Response = class label + break probability
+
+Phase 6 (UI entraînement) :
+- Jobs d'entraînement asynchrones via docker exec + thread daemon
+- Endpoints /start-training et /training-status/{job_id}, pour la
+  classification (break_within_horizon) ET la régression (years_until_break)
+- Endpoints /models et /models/{run_id} pour lister/supprimer les runs MLflow
 """
 
 from __future__ import annotations
 
+import subprocess
+import threading
 import traceback
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 import mlflow
@@ -18,6 +29,7 @@ import mlflow.sklearn
 import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query
+from mlflow.entities import ViewType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from src.model_gate import (
@@ -30,6 +42,11 @@ from src.model_gate import (
     select_champion_run,
 )
 from src.schema import FEATURE_COLUMNS, INFERENCE_INPUT_COLUMNS, TARGET_COLUMN
+
+try:
+    from src.config import MLFLOW_EXPERIMENT_NAME
+except ModuleNotFoundError:
+    from config import MLFLOW_EXPERIMENT_NAME
 
 
 app = FastAPI(
@@ -51,6 +68,128 @@ model_name_info = "Aucun modèle chargé"
 regressor_model = None
 regressor_champion_info: Optional[RegressorChampionSelection] = None
 regressor_name_info = "Aucun régresseur chargé"
+
+# ---------------------------------------------------------------------------
+# Jobs d'entraînement asynchrones (un seul à la fois, classification OU
+# régression) via `docker exec` dans le conteneur trainer.
+# ---------------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+TRAINER_CONTAINER = "bris-aqueduc-trainer"
+# /app/training_jobs quand l'API tourne dans son conteneur Docker (volume
+# monté sur tout le repo, cf docker-compose.yml), sinon un dossier local pour
+# l'exécution/tests en dehors de Docker.
+TRAINING_JOBS_DIR = (
+    Path("/app/training_jobs") if Path("/.dockerenv").exists() else PROJECT_ROOT / "training_jobs"
+)
+TRAINING_JOBS_DIR.mkdir(parents=True, exist_ok=True)
+
+CLASSIFICATION_TRAINING_MODELS = {
+    "logistic",
+    "ridge",
+    "lasso",
+    "random_forest",
+    "extra_trees",
+    "xgboost",
+    "knn",
+    "svc",
+    "mlp",
+    "stacking",
+    "h2o",
+}
+REGRESSION_TRAINING_MODELS = {
+    "linear",
+    "ridge_reg",
+    "lasso_reg",
+    "rf_reg",
+    "xgb_reg",
+}
+
+# job_id -> métadonnées (status, timestamps, result, etc.)
+jobs_status: dict[str, dict] = {}
+_jobs_lock = threading.Lock()
+
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _tail_log_file(log_path: Path, n_lines: int = 250) -> str:
+    """Retourne les ~n_lines dernières lignes d'un fichier de log."""
+    if not log_path.exists():
+        return ""
+    try:
+        with log_path.open("r", encoding="utf-8", errors="replace") as handle:
+            lines = handle.readlines()
+        return "".join(lines[-n_lines:])
+    except OSError as exc:
+        return f"[ERREUR] Impossible de lire le log : {exc}\n"
+
+
+def _run_training_job(job_id: str, cmd: list[str], task: str) -> None:
+    """Exécute la commande d'entraînement et met à jour jobs_status."""
+    log_path = TRAINING_JOBS_DIR / f"{job_id}.log"
+    with _jobs_lock:
+        jobs_status[job_id]["status"] = "running"
+        jobs_status[job_id]["started_at"] = _utc_now_iso()
+
+    try:
+        with log_path.open("w", encoding="utf-8") as log_file:
+            log_file.write(f"$ {' '.join(cmd)}\n")
+            log_file.flush()
+            process = subprocess.Popen(
+                cmd,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+            )
+            return_code = process.wait()
+    except FileNotFoundError as exc:
+        with _jobs_lock:
+            jobs_status[job_id]["status"] = "failed"
+            jobs_status[job_id]["finished_at"] = _utc_now_iso()
+            jobs_status[job_id]["return_code"] = -1
+            jobs_status[job_id]["result"] = None
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(
+                f"\n[ERREUR] Commande Docker introuvable dans le conteneur API : {exc}\n"
+            )
+        return
+    except Exception as exc:
+        with _jobs_lock:
+            jobs_status[job_id]["status"] = "failed"
+            jobs_status[job_id]["finished_at"] = _utc_now_iso()
+            jobs_status[job_id]["return_code"] = -1
+            jobs_status[job_id]["result"] = None
+        with log_path.open("a", encoding="utf-8") as log_file:
+            log_file.write(f"\n[ERREUR] Échec du lancement de l'entraînement : {exc}\n")
+        return
+
+    finished_at = _utc_now_iso()
+    status = "completed" if return_code == 0 else "failed"
+    result = None
+
+    if status == "completed":
+        try:
+            if task == "regression":
+                selection = select_champion_regressor()
+            else:
+                selection = select_champion_run()
+            result = selection.to_dict()
+            result["task"] = task
+            with log_path.open("a", encoding="utf-8") as log_file:
+                log_file.write(f"\n[Champion] {selection.summary()}\n")
+        except Exception as exc:
+            with log_path.open("a", encoding="utf-8") as log_file:
+                log_file.write(
+                    f"\n[AVERTISSEMENT] Entraînement OK mais sélection champion échouée : {exc}\n"
+                )
+
+    with _jobs_lock:
+        jobs_status[job_id]["status"] = status
+        jobs_status[job_id]["finished_at"] = finished_at
+        jobs_status[job_id]["return_code"] = return_code
+        jobs_status[job_id]["result"] = result
 
 
 class PipeBreakRequest(BaseModel):
@@ -364,3 +503,269 @@ def reload_regressor():
         }
     except Exception as exc:
         return {"status": "error", "message": str(exc)}
+
+
+@app.post("/start-training")
+def start_training(
+    task: str = Query(
+        "classification",
+        description="Tâche à entraîner : 'classification' (break_within_horizon) ou 'regression' (years_until_break)",
+    ),
+    model_type: str = Query(
+        ...,
+        description="Type de modèle (dépend de task ; ex: xgboost pour classification, xgb_reg pour regression)",
+    ),
+    tune: bool = Query(False, description="Activer Optuna"),
+    n_trials: int = Query(15, ge=1, le=200, description="Nombre d'essais Optuna"),
+    horizon_years: int = Query(
+        5, description="Horizon de prédiction (1, 2 ou 5 ans) ; utilisé uniquement pour task=classification"
+    ),
+):
+    """
+    Lance un entraînement en arrière-plan dans le conteneur trainer.
+    Répond immédiatement avec un job_id (ne bloque pas).
+    """
+    # Pre-existing compatibility note (see predict()): when this endpoint is
+    # invoked directly (e.g. unit tests calling the function without going
+    # through FastAPI's request handling), optional Query(...) parameters
+    # that weren't explicitly passed still hold their sentinel FieldInfo
+    # instead of the resolved default. Fall back to the documented defaults
+    # in that case; real HTTP calls are unaffected since FastAPI already
+    # resolves these values before this point.
+    if not isinstance(task, str):
+        task = "classification"
+    if not isinstance(tune, bool):
+        tune = False
+    if not isinstance(n_trials, int):
+        n_trials = 15
+    if not isinstance(horizon_years, int):
+        horizon_years = 5
+
+    if task not in {"classification", "regression"}:
+        raise HTTPException(
+            status_code=422,
+            detail=f"task invalide : {task!r}. Choix : ['classification', 'regression'].",
+        )
+
+    allowed_models = (
+        CLASSIFICATION_TRAINING_MODELS if task == "classification" else REGRESSION_TRAINING_MODELS
+    )
+    if model_type not in allowed_models:
+        raise HTTPException(
+            status_code=422,
+            detail=f"model_type invalide pour task={task!r} : {model_type!r}. Choix : {sorted(allowed_models)}",
+        )
+    if task == "classification" and horizon_years not in {1, 2, 5}:
+        raise HTTPException(
+            status_code=422,
+            detail="horizon_years doit être 1, 2 ou 5.",
+        )
+
+    # h2o (AutoML) ne supporte pas Optuna ; tous les modèles de régression le supportent.
+    tune_supported = model_type != "h2o"
+    effective_tune = bool(tune and tune_supported)
+
+    with _jobs_lock:
+        running = [
+            jid
+            for jid, meta in jobs_status.items()
+            if meta.get("status") == "running"
+        ]
+        if running:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    f"Un entraînement est déjà en cours (job_id={running[0]}). "
+                    "Attends sa fin avant d'en lancer un autre."
+                ),
+            )
+
+        job_id = str(uuid.uuid4())[:8]
+        cmd = [
+            "docker",
+            "exec",
+            TRAINER_CONTAINER,
+            "python",
+            "-m",
+            "src.train",
+            "--task",
+            task,
+            "--model_type",
+            model_type,
+        ]
+        if task == "classification":
+            cmd.extend(["--horizon_years", str(horizon_years)])
+        if effective_tune:
+            cmd.extend(["--tune", "--n_trials", str(n_trials)])
+
+        jobs_status[job_id] = {
+            "job_id": job_id,
+            "status": "pending",
+            "task": task,
+            "model_type": model_type,
+            "tune": effective_tune,
+            "n_trials": n_trials if effective_tune else None,
+            "horizon_years": horizon_years if task == "classification" else None,
+            "started_at": None,
+            "finished_at": None,
+            "return_code": None,
+            "result": None,
+            "command": cmd,
+        }
+
+    thread = threading.Thread(
+        target=_run_training_job,
+        args=(job_id, cmd, task),
+        daemon=True,
+        name=f"training-{job_id}",
+    )
+    thread.start()
+
+    return {"job_id": job_id, "status": "pending", "task": task}
+
+
+@app.get("/training-status/{job_id}")
+def training_status(job_id: str):
+    """Retourne l'état d'un job d'entraînement et la queue des logs."""
+    with _jobs_lock:
+        meta = jobs_status.get(job_id)
+        if meta is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Aucun job d'entraînement trouvé pour job_id={job_id!r}.",
+            )
+        snapshot = dict(meta)
+
+    log_tail = _tail_log_file(TRAINING_JOBS_DIR / f"{job_id}.log", n_lines=250)
+
+    return {
+        "job_id": job_id,
+        "status": snapshot.get("status"),
+        "task": snapshot.get("task"),
+        "model_type": snapshot.get("model_type"),
+        "tune": snapshot.get("tune"),
+        "n_trials": snapshot.get("n_trials"),
+        "horizon_years": snapshot.get("horizon_years"),
+        "started_at": snapshot.get("started_at"),
+        "finished_at": snapshot.get("finished_at"),
+        "return_code": snapshot.get("return_code"),
+        "log_tail": log_tail,
+        "result": snapshot.get("result"),
+    }
+
+
+@app.get("/models")
+def list_models(
+    include_deleted: bool = Query(False, description="Inclure les runs déjà supprimés (soft delete)"),
+):
+    """
+    Liste tous les runs MLflow de premier niveau (hors essais Optuna 'trial_*'),
+    avec leurs métriques principales et un indicateur si c'est le champion actif.
+
+    Couvre à la fois les runs de classification (break_within_horizon) et de
+    régression (years_until_break, params.task == 'regression').
+    """
+    try:
+        tracking_uri = resolve_tracking_uri()
+        mlflow.set_tracking_uri(tracking_uri)
+
+        experiment = mlflow.get_experiment_by_name(MLFLOW_EXPERIMENT_NAME)
+        if experiment is None:
+            return {"status": "error", "message": "Expérience MLflow introuvable.", "models": []}
+
+        view_type = ViewType.ALL if include_deleted else ViewType.ACTIVE_ONLY
+        runs = mlflow.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            run_view_type=view_type,
+            max_results=300,
+            order_by=["start_time DESC"],
+        )
+
+        if runs.empty:
+            return {"status": "success", "models": []}
+
+        # Exclure les essais Optuna imbriqués pour garder une liste lisible
+        if "tags.mlflow.parentRunId" in runs.columns:
+            runs = runs[runs["tags.mlflow.parentRunId"].isnull()]
+        if "tags.mlflow.runName" in runs.columns:
+            runs = runs[~runs["tags.mlflow.runName"].astype(str).str.startswith("trial_")]
+
+        current_champion_id = champion_info.run_id if champion_info is not None else None
+        current_regressor_champion_id = (
+            regressor_champion_info.run_id if regressor_champion_info is not None else None
+        )
+
+        models = []
+        for _, row in runs.iterrows():
+            run_id = row.get("run_id")
+            raw_task = row.get("params.task")
+            task = str(raw_task) if pd.notna(raw_task) else "classification"
+            models.append(
+                {
+                    "run_id": run_id,
+                    "run_name": str(row.get("tags.mlflow.runName", "—")),
+                    "task": task,
+                    "model_type": str(row.get("params.model_type", "—")),
+                    "horizon_years": row.get("params.horizon_years", "—"),
+                    "pr_auc_test": row.get("metrics.pr_auc_test"),
+                    "f1_train": row.get("metrics.f1_train"),
+                    "f1_test": row.get("metrics.f1_test"),
+                    "roc_auc_test": row.get("metrics.roc_auc_test"),
+                    "rmse_test": row.get("metrics.rmse_test"),
+                    "mae_test": row.get("metrics.mae_test"),
+                    "r2_test": row.get("metrics.r2_test"),
+                    "start_time": str(row.get("start_time")),
+                    "status": row.get("status"),
+                    "is_current_champion": run_id == current_champion_id
+                    or run_id == current_regressor_champion_id,
+                }
+            )
+
+        return {"status": "success", "models": models}
+
+    except Exception as exc:
+        return {"status": "error", "message": str(exc), "models": []}
+
+
+@app.delete("/models/{run_id}")
+def delete_model(
+    run_id: str,
+    force: bool = Query(False, description="Confirme la suppression même si c'est le champion actif"),
+):
+    """
+    Supprime (soft delete MLflow) un run par son run_id.
+
+    Protège contre la suppression accidentelle du champion actuellement chargé
+    en mémoire (classification ou régression) : il faut passer force=true
+    explicitement pour le supprimer.
+
+    Note : MLflow marque le run comme 'deleted' (lifecycle_stage) mais les
+    artefacts restent sur disque jusqu'à l'exécution de `mlflow gc` côté serveur.
+    """
+    is_classification_champion = champion_info is not None and run_id == champion_info.run_id
+    is_regression_champion = (
+        regressor_champion_info is not None and run_id == regressor_champion_info.run_id
+    )
+
+    if (is_classification_champion or is_regression_champion) and not force:
+        raise HTTPException(
+            status_code=409,
+            detail=(
+                "Ce run est un champion actuellement chargé en mémoire par l'API. "
+                "Relance la requête avec ?force=true pour confirmer la suppression."
+            ),
+        )
+
+    try:
+        tracking_uri = resolve_tracking_uri()
+        client = mlflow.tracking.MlflowClient(tracking_uri=tracking_uri)
+        client.delete_run(run_id)
+
+        return {
+            "status": "success",
+            "message": f"Run {run_id} supprimé (soft delete MLflow).",
+            "was_champion": is_classification_champion or is_regression_champion,
+        }
+
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Échec de la suppression : {exc}")
