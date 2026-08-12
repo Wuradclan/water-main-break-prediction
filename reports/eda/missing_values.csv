@@ -4,8 +4,8 @@ age_years,782,0.060209424083769635
 material,758,0.0583615645210964
 diameter_mm,758,0.0583615645210964
 street,45,0.003464736680012319
-snapshot_date,0,0.0
 asset_id,0,0.0
+snapshot_date,0,0.0
 prior_break_count,0,0.0
 break_within_horizon,0,0.0
 horizon_years,0,0.0
