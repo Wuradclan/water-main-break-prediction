@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WaterBreak AI — Predicting Water Main Breaks | Kitchener-Waterloo MLOps Project</title>
+<meta name="description" content="An end-to-end MLOps pipeline that predicts whether a water main in Kitchener-Waterloo will break within the next five years — powered by MLflow, Optuna, FastAPI, Streamlit and Docker.">
+
+<!-- Fonts: Space Grotesk (display), Inter (body), JetBrains Mono (data / code). Falls back gracefully to system fonts if offline. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2306b6d4' d='M12 2c4.2 5.2 7 9 7 12.3A7 7 0 0 1 5 14.3C5 11 7.8 7.2 12 2z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+<link rel="alternate" hreflang="en" href="index.html">
+<link rel="alternate" hreflang="fr" href="index-fr.html">
+</head>
+<body>
+
+<!-- ============================================================
+     ICON SPRITE — reusable inline SVG symbols, referenced with <use>
+     ============================================================ -->
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="icon-droplet" viewBox="0 0 24 24"><path d="M12 2.5c4.2 5.2 7.2 9.2 7.2 12.6A7.2 7.2 0 0 1 4.8 15.1C4.8 11.7 7.8 7.7 12 2.5z"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+    <symbol id="icon-arrow-down" viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="21"/><polyline points="5 14 12 21 19 14"/></symbol>
+    <symbol id="icon-chevron-up" viewBox="0 0 24 24"><polyline points="5 15 12 8 19 15"/></symbol>
+    <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v6.2c0 1.66 3.58 3 8 3s8-1.34 8-3V5.5"/><path d="M4 11.7v6.2c0 1.66 3.58 3 8 3s8-1.34 8-3v-6.2"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.2V12l3.3 2.7"/></symbol>
+    <symbol id="icon-filter" viewBox="0 0 24 24"><path d="M3.5 4h17l-6.4 8v6.3l-4.2 2V12z"/></symbol>
+    <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.6"/><rect x="9.3" y="9.3" width="5.4" height="5.4"/><line x1="12" y1="1.5" x2="12" y2="4.2"/><line x1="12" y1="19.8" x2="12" y2="22.5"/><line x1="1.5" y1="12" x2="4.2" y2="12"/><line x1="19.8" y1="12" x2="22.5" y2="12"/><line x1="6.5" y1="1.5" x2="6.5" y2="4.2"/><line x1="17.5" y1="19.8" x2="17.5" y2="22.5"/></symbol>
+    <symbol id="icon-sliders" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><circle cx="4" cy="10.5" r="2.2"/><line x1="4" y1="6.5" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12.5"/><circle cx="12" cy="9" r="2.2"/><line x1="12" y1="5" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16.5"/><circle cx="20" cy="13" r="2.2"/><line x1="20" y1="9.5" x2="20" y2="3"/></symbol>
+    <symbol id="icon-activity" viewBox="0 0 24 24"><polyline points="2.5 13 8 13 10 6 14.5 19 16.5 13 21.5 13"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 2.8l7.5 3v5.8c0 5-3.4 8.3-7.5 9.4-4.1-1.1-7.5-4.4-7.5-9.4V5.8z"/><path d="M8.6 12.2l2.4 2.4 4.4-4.6"/></symbol>
+    <symbol id="icon-award" viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="5"/><path d="M8.4 12.7 6.5 20l5.5-3 5.5 3-1.9-7.3"/></symbol>
+    <symbol id="icon-server" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="6.5" rx="1.3"/><rect x="3" y="14" width="18" height="6.5" rx="1.3"/><circle cx="7" cy="6.75" r="0.9" fill="currentColor" stroke="none"/><circle cx="7" cy="17.25" r="0.9" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+    <symbol id="icon-box" viewBox="0 0 24 24"><path d="M21 7.5 12 3 3 7.5 12 12l9-4.5z"/><path d="M3 7.5v9L12 21l9-4.5v-9"/><line x1="12" y1="12" x2="12" y2="21"/></symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24"><polygon points="12 2.3 21.5 7.3 12 12.3 2.5 7.3"/><polyline points="2.5 12.3 12 17.3 21.5 12.3"/><polyline points="2.5 17.3 12 22.3 21.5 17.3"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c0-4.1 3.4-7 7.5-7s7.5 2.9 7.5 7"/></symbol>
+    <symbol id="icon-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.6"/><polyline points="7.5 9.5 11 12.5 7.5 15.5"/><line x1="12.5" y1="15.5" x2="16.5" y2="15.5"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><polyline points="4.5 12.5 9.5 17.5 19.5 6.5"/></symbol>
+    <symbol id="icon-trending-up" viewBox="0 0 24 24"><polyline points="3 17 9.5 10.5 13.5 14.5 21 6"/><polyline points="14.5 6 21 6 21 12.5"/></symbol>
+    <symbol id="icon-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-bar-chart" viewBox="0 0 24 24"><line x1="5.5" y1="20" x2="5.5" y2="11"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18.5" y1="20" x2="18.5" y2="14.5"/></symbol>
+    <symbol id="icon-external" viewBox="0 0 24 24"><path d="M14 3.5h6.5v6.5"/><line x1="20.5" y1="3.5" x2="11" y2="13"/><path d="M20.5 13.5v6a1.3 1.3 0 0 1-1.3 1.3H4.8A1.3 1.3 0 0 1 3.5 19.5V5.8a1.3 1.3 0 0 1 1.3-1.3h6"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path d="M3.5 5.2c3-1.4 6-1.4 8.5 0v14c-2.5-1.4-5.5-1.4-8.5 0z"/><path d="M20.5 5.2c-3-1.4-6-1.4-8.5 0v14c2.5-1.4 5.5-1.4 8.5 0z"/></symbol>
+    <symbol id="icon-gauge" viewBox="0 0 24 24"><path d="M4 15.5a8 8 0 1 1 16 0"/><line x1="12" y1="15.5" x2="15.5" y2="10.5"/><circle cx="12" cy="15.5" r="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="icon-git-branch" viewBox="0 0 24 24"><line x1="7" y1="3.5" x2="7" y2="14.5"/><circle cx="7" cy="18" r="2.3"/><circle cx="7" cy="6" r="2.3"/><circle cx="17" cy="18" r="2.3"/><path d="M17 15.7v-2a4 4 0 0 0-4-4H9.3"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+<header class="navbar" id="navbar">
+  <div class="container navbar__inner">
+    <a href="#top" class="navbar__brand">
+      <span class="navbar__logo"><svg class="icon"><use href="#icon-droplet"/></svg></span>
+      <span class="navbar__name">WaterBreak <span class="accent">AI</span></span>
+    </a>
+
+    <nav class="navbar__nav" id="primaryNav" aria-label="Primary">
+      <ul class="navbar__links">
+        <li><a href="#overview" class="nav-link">Overview</a></li>
+        <li><a href="#data" class="nav-link">Data</a></li>
+        <li><a href="#pipeline" class="nav-link">Pipeline</a></li>
+        <li><a href="#models" class="nav-link">Models</a></li>
+        <li><a href="#architecture" class="nav-link">Architecture</a></li>
+        <li><a href="#api" class="nav-link">API</a></li>
+        <li><a href="#demo" class="nav-link">Demo</a></li>
+        <li><a href="#tech-stack" class="nav-link">Tech Stack</a></li>
+      </ul>
+    </nav>
+
+    <div class="lang-switch" aria-label="Language">
+      <a href="index.html" class="lang-switch__link is-active">EN</a>
+      <a href="index-fr.html" class="lang-switch__link">FR</a>
+    </div>
+
+    <a href="#architecture" class="btn btn--primary btn--sm navbar__cta">View Project</a>
+
+    <button class="navbar__toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primaryNav">
+      <svg class="icon icon-open"><use href="#icon-menu"/></svg>
+      <svg class="icon icon-close"><use href="#icon-close"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="hero">
+  <div class="hero__bg" aria-hidden="true">
+    <div class="hero__grid"></div>
+    <div class="hero__glow hero__glow--a"></div>
+    <div class="hero__glow hero__glow--b"></div>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content">
+      <p class="eyebrow reveal"><span class="eyebrow__dot"></span>End-to-end MLOps · Kitchener-Waterloo</p>
+      <h1 class="hero__title reveal">Predicting Water Main Breaks <span class="accent">Before They Happen</span></h1>
+      <p class="hero__subtitle reveal">An end-to-end MLOps pipeline designed to estimate whether a water main in Kitchener-Waterloo is likely to break within the next five years.</p>
+      <div class="hero__actions reveal">
+        <a href="#pipeline" class="btn btn--primary">Explore the Pipeline <svg class="icon icon--sm"><use href="#icon-arrow-down"/></svg></a>
+        <a href="#architecture" class="btn btn--ghost">See Architecture <svg class="icon icon--sm"><use href="#icon-arrow-right"/></svg></a>
+      </div>
+    </div>
+
+    <div class="hero__visual reveal">
+      <!-- Diagnostic HUD card: pipe risk analysis, hand-built with HTML/CSS -->
+      <div class="hud-card">
+        <div class="hud-card__frame" aria-hidden="true"></div>
+        <div class="hud-card__header">
+          <span class="hud-card__title">Pipeline Risk Analysis</span>
+          <span class="hud-card__live"><span class="pulse-dot"></span>LIVE INFERENCE</span>
+        </div>
+
+        <div class="hud-card__body">
+          <div class="hud-card__pipe" aria-hidden="true">
+            <div class="hud-card__pipe-ring hud-card__pipe-ring--1"></div>
+            <div class="hud-card__pipe-ring hud-card__pipe-ring--2"></div>
+            <div class="hud-card__pipe-ring hud-card__pipe-ring--3"></div>
+          </div>
+
+          <dl class="hud-card__specs">
+            <div><dt>Pipe ID</dt><dd>KW-2048</dd></div>
+            <div><dt>Material</dt><dd>Cast Iron</dd></div>
+            <div><dt>Diameter</dt><dd>200 mm</dd></div>
+            <div><dt>Age</dt><dd>47 years</dd></div>
+          </dl>
+
+          <div class="hud-card__risk">
+            <div class="hud-card__risk-label">
+              <span>Break risk within 5 years</span>
+              <span class="hud-card__risk-value" data-animate-risk="78">0%</span>
+            </div>
+            <div class="risk-bar">
+              <div class="risk-bar__fill risk-bar__fill--high" data-risk-fill="78" style="width:0%"></div>
+            </div>
+            <div class="hud-card__status hud-card__status--high">
+              <svg class="icon icon--sm"><use href="#icon-gauge"/></svg>
+              HIGH RISK
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hero__stats reveal">
+    <div class="stat-card">
+      <span class="stat-card__value" data-counter data-target="2">0</span>
+      <span class="stat-card__label">Binary Classification</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value"><span data-counter data-target="5">0</span>-Year</span>
+      <span class="stat-card__label">Prediction Horizon</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value"><span data-counter data-target="6">0</span>+</span>
+      <span class="stat-card__label">Machine Learning Models</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__value"><span data-counter data-target="100">0</span>%</span>
+      <span class="stat-card__label">Fully Dockerized</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     OVERVIEW
+     ============================================================ -->
+<section class="section" id="overview">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Project Overview</p>
+      <h2>From Historical Breaks to Predictive Maintenance</h2>
+      <p class="section__lead">The project builds a complete machine learning and MLOps workflow for predicting water main failures in the Kitchener-Waterloo region of Canada. Using characteristics such as pipe material, diameter, age and historical break information, the model estimates whether a pipe is likely to break within the next five years.</p>
+    </div>
+
+    <div class="flow-diagram reveal">
+      <div class="flow-diagram__node">
+        <svg class="icon"><use href="#icon-database"/></svg>
+        <span>Pipe characteristics</span>
+      </div>
+      <svg class="icon flow-diagram__arrow"><use href="#icon-arrow-down"/></svg>
+      <div class="flow-diagram__node flow-diagram__node--accent">
+        <svg class="icon"><use href="#icon-cpu"/></svg>
+        <span>Machine Learning Model</span>
+      </div>
+      <svg class="icon flow-diagram__arrow"><use href="#icon-arrow-down"/></svg>
+      <div class="flow-diagram__node flow-diagram__node--dark">
+        <svg class="icon"><use href="#icon-gauge"/></svg>
+        <span>Prediction</span>
+      </div>
+    </div>
+
+    <div class="grid-2 reveal">
+      <div class="class-card class-card--safe">
+        <span class="class-card__tag">Class 0</span>
+        <p>No break expected within the next 5 years.</p>
+      </div>
+      <div class="class-card class-card--risk">
+        <span class="class-card__tag">Class 1</span>
+        <p>Break expected within the next 5 years.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     THE DATA CHALLENGE
+     ============================================================ -->
+<section class="section section--tint" id="data">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>The Data Challenge</p>
+      <h2>How do you train a classifier when the dataset is mostly pipes that already failed?</h2>
+      <p class="section__lead">The original Kitchener-Waterloo dataset contains historical water main breaks. However, it does not provide a clean set of confirmed negative examples representing pipes that did not break. To solve this problem, the project creates training examples using historical time snapshots.</p>
+    </div>
+
+    <div class="timelines reveal">
+      <div class="timeline-card timeline-card--negative">
+        <span class="timeline-card__badge">Label = 0</span>
+        <div class="timeline">
+          <div class="timeline__point">
+            <span class="timeline__year">2008</span>
+            <span class="timeline__desc">Pipe snapshot</span>
+          </div>
+          <svg class="icon timeline__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="timeline__point">
+            <span class="timeline__year">2011</span>
+            <span class="timeline__desc">No break within horizon</span>
+          </div>
+        </div>
+        <p class="timeline-card__result">→ No break recorded in the 5-year window after the snapshot.</p>
+      </div>
+
+      <div class="timeline-card timeline-card--positive">
+        <span class="timeline-card__badge">Label = 1</span>
+        <div class="timeline">
+          <div class="timeline__point">
+            <span class="timeline__year">2014</span>
+            <span class="timeline__desc">Pipe snapshot</span>
+          </div>
+          <svg class="icon timeline__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="timeline__point">
+            <span class="timeline__year">2017</span>
+            <span class="timeline__desc">Break occurs</span>
+          </div>
+        </div>
+        <p class="timeline-card__result">→ A break is recorded inside the 5-year window after the snapshot.</p>
+      </div>
+    </div>
+
+    <div class="info-box reveal">
+      <div class="info-box__icon"><svg class="icon"><use href="#icon-clock"/></svg></div>
+      <div>
+        <h3>Temporal Snapshot Labeling</h3>
+        <p>Historical snapshots are generated before and after recorded failures to construct positive and negative training examples while respecting temporal information — no future data ever leaks into a snapshot's features.</p>
+      </div>
+    </div>
+
+    <p class="data-note reveal">
+      <svg class="icon icon--sm"><use href="#icon-shield"/></svg>
+      Every transformed dataset is fingerprinted with a <strong>SHA-256</strong> hash and logged alongside each training run, ensuring full reproducibility between experiments.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     MLOPS PIPELINE
+     ============================================================ -->
+<section class="section" id="pipeline">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>MLOps Pipeline</p>
+      <h2>Ten Stages, One Automated Workflow</h2>
+      <p class="section__lead">From raw incident records to a live prediction interface — every stage is automated, tracked and reproducible.</p>
+    </div>
+
+    <ol class="pipeline reveal">
+      <li class="pipeline__step">
+        <span class="pipeline__index">01</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-database"/></svg></span>
+        <h3>Raw Data</h3>
+        <p>Historical water main break records from Kitchener-Waterloo.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">02</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-clock"/></svg></span>
+        <h3>Temporal Labeling</h3>
+        <p>Creates training snapshots and generates the <code>break_within_horizon</code> target.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">03</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-filter"/></svg></span>
+        <h3>Preprocessing</h3>
+        <p>Transforms numerical and categorical pipe features for machine learning.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">04</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-cpu"/></svg></span>
+        <h3>Model Training</h3>
+        <p>Multiple machine learning algorithms are trained and evaluated.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">05</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-sliders"/></svg></span>
+        <h3>Hyperparameter Tuning</h3>
+        <p>Optuna automatically searches for better hyperparameters.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">06</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-activity"/></svg></span>
+        <h3>MLflow Tracking</h3>
+        <p>Tracks metrics, parameters, models and experiments.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">07</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-shield"/></svg></span>
+        <h3>Model Gate</h3>
+        <p>Automatically evaluates models before promotion.</p>
+      </li>
+      <li class="pipeline__step pipeline__step--champion">
+        <span class="pipeline__index">08</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-award"/></svg></span>
+        <h3>Champion Model</h3>
+        <p>The best validated model becomes the production candidate.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">09</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-server"/></svg></span>
+        <h3>FastAPI</h3>
+        <p>Exposes the champion model through REST endpoints.</p>
+      </li>
+      <li class="pipeline__step">
+        <span class="pipeline__index">10</span>
+        <span class="pipeline__icon"><svg class="icon"><use href="#icon-monitor"/></svg></span>
+        <h3>Streamlit</h3>
+        <p>Provides an interactive prediction interface.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================
+     MACHINE LEARNING MODELS
+     ============================================================ -->
+<section class="section section--tint" id="models">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Machine Learning Models</p>
+      <h2>Multiple Models. <span class="accent">One Champion.</span></h2>
+      <p class="section__lead">Several algorithms are benchmarked on the same temporally-split data so the strongest candidate can be selected objectively.</p>
+    </div>
+
+    <div class="model-grid reveal">
+      <div class="model-card">
+        <span class="model-card__badge">LR</span>
+        <h3>Logistic Regression</h3>
+        <p>A fast, interpretable linear baseline that estimates break probability directly from pipe features.</p>
+      </div>
+      <div class="model-card">
+        <span class="model-card__badge">RF</span>
+        <h3>Random Forest</h3>
+        <p>Ensemble of decision trees capable of capturing complex non-linear relationships.</p>
+      </div>
+      <div class="model-card">
+        <span class="model-card__badge">XGB</span>
+        <h3>XGBoost</h3>
+        <p>Gradient boosting model optimized for strong tabular prediction performance.</p>
+      </div>
+      <div class="model-card">
+        <span class="model-card__badge">SVM</span>
+        <h3>SVM</h3>
+        <p>Finds the optimal boundary between at-risk and low-risk pipes in feature space.</p>
+      </div>
+      <div class="model-card">
+        <span class="model-card__badge">MLP</span>
+        <h3>MLP Neural Network</h3>
+        <p>A small feed-forward network that learns non-linear interactions between pipe attributes.</p>
+      </div>
+      <div class="model-card">
+        <span class="model-card__badge">ST</span>
+        <h3>Stacking Ensemble</h3>
+        <p>Combines predictions from multiple models using a meta-model for a stronger final estimate.</p>
+      </div>
+    </div>
+
+    <div class="optuna-panel reveal">
+      <div class="optuna-panel__text">
+        <span class="optuna-panel__eyebrow"><svg class="icon icon--sm"><use href="#icon-sliders"/></svg>Hyperparameter Optimization</span>
+        <h3>Optuna searches for optimal model configurations automatically</h3>
+        <p>Instead of hand-tuning parameters, an Optuna study runs dozens of trials per model, maximizing validation PR-AUC while penalizing configurations that overfit the training data.</p>
+      </div>
+      <div class="optuna-panel__chart" aria-hidden="true">
+        <div class="optuna-chart">
+          <div class="optuna-chart__bar" style="--h:32%"></div>
+          <div class="optuna-chart__bar" style="--h:48%"></div>
+          <div class="optuna-chart__bar" style="--h:41%"></div>
+          <div class="optuna-chart__bar" style="--h:63%"></div>
+          <div class="optuna-chart__bar" style="--h:58%"></div>
+          <div class="optuna-chart__bar" style="--h:74%"></div>
+          <div class="optuna-chart__bar" style="--h:69%"></div>
+          <div class="optuna-chart__bar" style="--h:85%"></div>
+          <div class="optuna-chart__bar" style="--h:79%"></div>
+          <div class="optuna-chart__bar optuna-chart__bar--best" style="--h:94%"></div>
+        </div>
+        <span class="optuna-panel__caption">Illustrative PR-AUC per trial — best trial highlighted</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MODEL GATE
+     ============================================================ -->
+<section class="section section--dark" id="model-gate">
+  <div class="container">
+    <div class="section__head section__head--dark reveal">
+      <p class="eyebrow eyebrow--dark"><span class="eyebrow__dot"></span>Automatic Model Selection</p>
+      <h2>The Model Gate</h2>
+      <p class="section__lead section__lead--dark">After training, models are not automatically deployed. They must pass a validation gate.</p>
+    </div>
+
+    <div class="gate-grid reveal">
+      <ul class="gate-checklist">
+        <li>Compares candidate models trained in the same experiment</li>
+        <li>Uses <strong>PR-AUC</strong> as the primary selection metric</li>
+        <li>Checks generalization performance on a held-out temporal split</li>
+        <li>Detects potential overfitting between train and test scores</li>
+        <li>Rejects models that do not satisfy quality rules</li>
+        <li>Selects the best surviving model as the champion</li>
+      </ul>
+
+      <div class="gate-schema">
+        <div class="gate-schema__node">Candidate Models</div>
+        <svg class="icon gate-schema__arrow"><use href="#icon-arrow-down"/></svg>
+        <div class="gate-schema__node gate-schema__node--gate">
+          <span class="gate-schema__node-title"><svg class="icon icon--sm"><use href="#icon-shield"/></svg>Model Gate</span>
+          <ul class="gate-schema__checks">
+            <li><svg class="icon icon--sm"><use href="#icon-check"/></svg>PR-AUC</li>
+            <li><svg class="icon icon--sm"><use href="#icon-check"/></svg>Validation performance</li>
+            <li><svg class="icon icon--sm"><use href="#icon-check"/></svg>Overfitting detection</li>
+          </ul>
+        </div>
+        <svg class="icon gate-schema__arrow"><use href="#icon-arrow-down"/></svg>
+        <div class="gate-schema__node gate-schema__node--champion">
+          <svg class="icon"><use href="#icon-award"/></svg>
+          Champion Model
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MLFLOW
+     ============================================================ -->
+<section class="section" id="mlflow">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Experiment Tracking</p>
+      <h2>Experiment Tracking with MLflow</h2>
+      <p class="section__lead">Every run logs parameters, hyperparameters, PR-AUC, precision, recall, F1-score, artifacts, the trained model itself, and the full experiment history — nothing is lost between iterations.</p>
+    </div>
+
+    <div class="mlflow-dashboard reveal">
+      <div class="mlflow-dashboard__bar">
+        <div class="mlflow-dashboard__dots"><span></span><span></span><span></span></div>
+        <span class="mlflow-dashboard__title">Experiment: KW_Water_Main_Break_Risk</span>
+      </div>
+      <div class="mlflow-dashboard__table">
+        <div class="mlflow-row mlflow-row--head">
+          <span>Run</span><span>Model</span><span>PR-AUC</span><span>F1</span><span>Status</span>
+        </div>
+        <div class="mlflow-row">
+          <span>Run 01</span><span>Random Forest</span><span>0.78</span><span>0.71</span><span class="mlflow-tag">logged</span>
+        </div>
+        <div class="mlflow-row">
+          <span>Run 02</span><span>XGBoost</span><span>0.84</span><span>0.76</span><span class="mlflow-tag">logged</span>
+        </div>
+        <div class="mlflow-row mlflow-row--champion">
+          <span>Run 03</span><span>Stacking Ensemble</span><span>0.87</span><span>0.80</span><span class="mlflow-tag mlflow-tag--champion"><svg class="icon icon--sm"><use href="#icon-award"/></svg>CHAMPION</span>
+        </div>
+      </div>
+      <p class="mlflow-dashboard__note">Values shown are illustrative — real metrics are generated live by each training run and viewable in the MLflow UI at <code>localhost:5050</code>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ARCHITECTURE
+     ============================================================ -->
+<section class="section section--tint" id="architecture">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>System Design</p>
+      <h2>System Architecture</h2>
+      <p class="section__lead">Two coordinated flows — a training loop and a serving loop — orchestrated together by Docker Compose.</p>
+    </div>
+
+    <div class="architecture reveal">
+      <div class="architecture__compose-label">
+        <svg class="icon icon--sm"><use href="#icon-layers"/></svg>
+        Docker Compose
+      </div>
+
+      <div class="architecture__flows">
+        <div class="arch-flow">
+          <span class="arch-flow__title">Serving path</span>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-user"/></svg>User</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-monitor"/></svg>Streamlit Frontend</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-server"/></svg>FastAPI</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node arch-flow__node--champion"><svg class="icon"><use href="#icon-award"/></svg>Champion ML Model</div>
+        </div>
+
+        <div class="arch-flow">
+          <span class="arch-flow__title">Training path</span>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-box"/></svg>Trainer</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-sliders"/></svg>Optuna</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-activity"/></svg>MLflow</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node"><svg class="icon"><use href="#icon-shield"/></svg>Model Gate</div>
+          <svg class="icon arch-flow__arrow"><use href="#icon-arrow-down"/></svg>
+          <div class="arch-flow__node arch-flow__node--champion"><svg class="icon"><use href="#icon-award"/></svg>Champion Model</div>
+        </div>
+      </div>
+
+      <div class="architecture__bridge">
+        <svg class="icon icon--sm"><use href="#icon-arrow-right"/></svg>
+        Champion Model is promoted and loaded straight into the live FastAPI service
+      </div>
+
+      <div class="architecture__services">
+        <span class="architecture__service"><svg class="icon icon--sm"><use href="#icon-activity"/></svg>MLflow</span>
+        <span class="architecture__service"><svg class="icon icon--sm"><use href="#icon-box"/></svg>Trainer</span>
+        <span class="architecture__service"><svg class="icon icon--sm"><use href="#icon-server"/></svg>API</span>
+        <span class="architecture__service"><svg class="icon icon--sm"><use href="#icon-monitor"/></svg>Frontend</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DOCKER
+     ============================================================ -->
+<section class="section" id="docker">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Containerization</p>
+      <h2>Fully Containerized with Docker</h2>
+      <p class="section__lead">The entire application is orchestrated using Docker Compose — one command brings up every service.</p>
+    </div>
+
+    <div class="docker-launch reveal">
+      <code class="docker-launch__cmd">$ docker compose up</code>
+      <svg class="icon docker-launch__arrow"><use href="#icon-arrow-down"/></svg>
+      <div class="docker-launch__services">
+        <span>MLflow</span><span>Trainer</span><span>API</span><span>Frontend</span>
+      </div>
+    </div>
+
+    <div class="docker-grid reveal">
+      <div class="docker-card">
+        <span class="docker-card__icon"><svg class="icon"><use href="#icon-activity"/></svg></span>
+        <h3>MLflow</h3>
+        <p>Experiment tracking and model registry.</p>
+      </div>
+      <div class="docker-card">
+        <span class="docker-card__icon"><svg class="icon"><use href="#icon-box"/></svg></span>
+        <h3>Trainer</h3>
+        <p>Runs preprocessing, model training and optimization.</p>
+      </div>
+      <div class="docker-card">
+        <span class="docker-card__icon"><svg class="icon"><use href="#icon-server"/></svg></span>
+        <h3>API</h3>
+        <p>FastAPI service responsible for inference.</p>
+      </div>
+      <div class="docker-card">
+        <span class="docker-card__icon"><svg class="icon"><use href="#icon-monitor"/></svg></span>
+        <h3>Frontend</h3>
+        <p>Streamlit interface used to interact with the model.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     API
+     ============================================================ -->
+<section class="section section--tint" id="api">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Inference Service</p>
+      <h2>Production-Ready Prediction API</h2>
+      <p class="section__lead">A FastAPI service exposes the current champion model through a small set of documented REST endpoints.</p>
+    </div>
+
+    <div class="endpoint-grid reveal">
+      <div class="endpoint-card">
+        <span class="endpoint-card__method endpoint-card__method--get">GET</span>
+        <code class="endpoint-card__path">/health</code>
+        <p>Liveness check and current MLflow tracking URI.</p>
+      </div>
+      <div class="endpoint-card">
+        <span class="endpoint-card__method endpoint-card__method--get">GET</span>
+        <code class="endpoint-card__path">/model-info</code>
+        <p>Returns information about the current champion model.</p>
+      </div>
+      <div class="endpoint-card">
+        <span class="endpoint-card__method endpoint-card__method--post">POST</span>
+        <code class="endpoint-card__path">/predict</code>
+        <p>Receives pipe characteristics and returns a break risk prediction.</p>
+      </div>
+      <div class="endpoint-card">
+        <span class="endpoint-card__method endpoint-card__method--post">POST</span>
+        <code class="endpoint-card__path">/reload-model</code>
+        <p>Reloads the champion model without rebuilding the API.</p>
+      </div>
+    </div>
+
+    <div class="code-example reveal">
+      <div class="code-window">
+        <div class="code-window__bar">
+          <span class="code-window__dots"><span></span><span></span><span></span></span>
+          <span class="code-window__title">request.http</span>
+        </div>
+        <pre class="code-window__body"><code><span class="tok-method">POST</span> <span class="tok-path">/predict</span>
+{
+  <span class="tok-key">"material"</span>: <span class="tok-str">"Cast Iron"</span>,
+  <span class="tok-key">"diameter_mm"</span>: <span class="tok-num">200</span>,
+  <span class="tok-key">"age_years"</span>: <span class="tok-num">47</span>,
+  <span class="tok-key">"previous_breaks"</span>: <span class="tok-num">2</span>
+}</code></pre>
+      </div>
+      <div class="code-window">
+        <div class="code-window__bar">
+          <span class="code-window__dots"><span></span><span></span><span></span></span>
+          <span class="code-window__title">response.json</span>
+        </div>
+        <pre class="code-window__body"><code>{
+  <span class="tok-key">"break_within_horizon"</span>: <span class="tok-num">1</span>,
+  <span class="tok-key">"probability"</span>: <span class="tok-num">0.78</span>,
+  <span class="tok-key">"risk_level"</span>: <span class="tok-str">"high"</span>
+}</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     INTERACTIVE DEMO
+     ============================================================ -->
+<section class="section" id="demo">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Try It Yourself</p>
+      <h2>Try a Prediction</h2>
+      <p class="section__lead">Adjust a pipe's characteristics and see how the estimated break risk responds.</p>
+    </div>
+
+    <div class="demo reveal">
+      <form class="demo__form" id="demoForm">
+        <div class="demo__field">
+          <label for="demoMaterial">Pipe Material</label>
+          <select id="demoMaterial" name="material">
+            <option value="cast-iron">Cast Iron</option>
+            <option value="pvc">PVC</option>
+            <option value="ductile-iron">Ductile Iron</option>
+            <option value="steel">Steel</option>
+          </select>
+        </div>
+
+        <div class="demo__field">
+          <label for="demoDiameter">Diameter (mm)</label>
+          <input type="number" id="demoDiameter" name="diameter" min="50" max="600" step="10" value="200">
+        </div>
+
+        <div class="demo__field">
+          <label for="demoAge">Pipe Age (years)</label>
+          <input type="number" id="demoAge" name="age" min="0" max="120" step="1" value="47">
+        </div>
+
+        <div class="demo__field">
+          <label for="demoBreaks">Previous Breaks</label>
+          <input type="number" id="demoBreaks" name="breaks" min="0" max="15" step="1" value="2">
+        </div>
+
+        <button type="submit" class="btn btn--primary demo__submit">Predict Break Risk</button>
+      </form>
+
+      <div class="demo__result">
+        <div class="demo__result-card" id="demoResultCard">
+          <span class="demo__result-label">Break Risk</span>
+          <span class="demo__result-value" id="demoResultValue">—</span>
+          <div class="risk-bar risk-bar--lg">
+            <div class="risk-bar__fill" id="demoResultBar" style="width:0%"></div>
+          </div>
+          <span class="demo__result-status" id="demoResultStatus">Fill in the form and run a prediction</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="demo__disclaimer reveal">
+      <svg class="icon icon--sm"><use href="#icon-shield"/></svg>
+      Demo simulation only — production predictions are generated by the FastAPI machine learning service.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     PROJECT STRUCTURE
+     ============================================================ -->
+<section class="section section--dark" id="structure">
+  <div class="container">
+    <div class="section__head section__head--dark reveal">
+      <p class="eyebrow eyebrow--dark"><span class="eyebrow__dot"></span>Repository Layout</p>
+      <h2>Project Structure</h2>
+      <p class="section__lead section__lead--dark">A clean, conventional MLOps layout — data, code, experiments and services each in their own place.</p>
+    </div>
+
+    <div class="code-window code-window--wide reveal">
+      <div class="code-window__bar">
+        <span class="code-window__dots"><span></span><span></span><span></span></span>
+        <span class="code-window__title">water-main-break-prediction/</span>
+      </div>
+      <pre class="code-window__body code-window__body--tree"><code>water-main-break-prediction/
+├── src/
+│   ├── labeling.py
+│   ├── preprocessing.py
+│   ├── train.py
+│   ├── model_gate.py
+│   └── schema.py
+│
+├── api/
+│   └── FastAPI service
+│
+├── app/
+│   └── Streamlit frontend
+│
+├── data/
+│   ├── raw/
+│   └── processed/
+│
+├── notebooks/
+│
+├── tests/
+│
+├── mlflow/
+│
+├── training_jobs/
+│
+└── docker-compose.yml</code></pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TECH STACK
+     ============================================================ -->
+<section class="section" id="tech-stack">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Under the Hood</p>
+      <h2>Technology Stack</h2>
+      <p class="section__lead">Every layer of the pipeline — data, modeling, tracking, serving and interface — is built on proven, production-grade tools.</p>
+    </div>
+
+    <div class="badge-grid reveal">
+      <span class="badge">Python</span>
+      <span class="badge">Scikit-learn</span>
+      <span class="badge">XGBoost</span>
+      <span class="badge">Optuna</span>
+      <span class="badge">MLflow</span>
+      <span class="badge">FastAPI</span>
+      <span class="badge">Streamlit</span>
+      <span class="badge">Docker</span>
+      <span class="badge">Docker Compose</span>
+      <span class="badge">Pandas</span>
+      <span class="badge">NumPy</span>
+      <span class="badge">SHA-256</span>
+      <span class="badge">HTML5</span>
+      <span class="badge">CSS3</span>
+      <span class="badge">JavaScript</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     WHY THIS PROJECT MATTERS
+     ============================================================ -->
+<section class="section section--tint" id="why">
+  <div class="container">
+    <div class="section__head reveal">
+      <p class="eyebrow"><span class="eyebrow__dot"></span>Impact</p>
+      <h2>From Reactive Repairs to Predictive Maintenance</h2>
+      <p class="section__lead">Turning historical infrastructure records into decisions municipalities can act on.</p>
+    </div>
+
+    <div class="why-grid reveal">
+      <div class="why-card">
+        <span class="why-card__icon"><svg class="icon"><use href="#icon-trending-up"/></svg></span>
+        <h3>Reduce Unexpected Failures</h3>
+        <p>Identify infrastructure with elevated failure risk before a break happens.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-card__icon"><svg class="icon"><use href="#icon-target"/></svg></span>
+        <h3>Prioritize Maintenance</h3>
+        <p>Help municipalities identify which pipes should receive inspection or replacement priority.</p>
+      </div>
+      <div class="why-card">
+        <span class="why-card__icon"><svg class="icon"><use href="#icon-bar-chart"/></svg></span>
+        <h3>Data-Driven Decisions</h3>
+        <p>Transform historical infrastructure data into actionable maintenance insights.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <span class="navbar__logo"><svg class="icon"><use href="#icon-droplet"/></svg></span>
+      <div>
+        <p class="footer__title">Water Main Break Prediction</p>
+        <p class="footer__subtitle">End-to-End MLOps Project</p>
+        <p class="footer__location">Kitchener-Waterloo, Canada</p>
+      </div>
+    </div>
+
+    <nav class="footer__nav" aria-label="Footer">
+      <span class="footer__nav-title">Explore</span>
+      <a href="#overview">Overview</a>
+      <a href="#pipeline">Pipeline</a>
+      <a href="#models">Models</a>
+      <a href="#architecture">Architecture</a>
+    </nav>
+
+    <nav class="footer__nav" aria-label="Resources">
+      <span class="footer__nav-title">Resources</span>
+      <a href="#top"><svg class="icon icon--sm"><use href="#icon-external"/></svg>GitHub</a>
+      <a href="#top"><svg class="icon icon--sm"><use href="#icon-book"/></svg>Documentation</a>
+      <a href="#api"><svg class="icon icon--sm"><use href="#icon-server"/></svg>API</a>
+    </nav>
+  </div>
+
+  <div class="container footer__bottom">
+    <p>Built with Machine Learning, FastAPI, MLflow, Streamlit &amp; Docker.</p>
+    <p>&copy; <span id="year"></span> WaterBreak AI — Educational / portfolio project.</p>
+  </div>
+</footer>
+
+<!-- Back to top -->
+<button id="backToTop" class="back-to-top" aria-label="Back to top">
+  <svg class="icon"><use href="#icon-chevron-up"/></svg>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>
