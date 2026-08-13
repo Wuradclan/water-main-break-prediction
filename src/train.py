@@ -26,6 +26,7 @@ from sklearn.linear_model import Lasso, LinearRegression, LogisticRegression, Ri
 from sklearn.metrics import (
     average_precision_score,
     brier_score_loss,
+    confusion_matrix,
     f1_score,
     mean_absolute_error,
     mean_squared_error,
@@ -47,6 +48,7 @@ try:
         CALIBRATION_CV_FOLDS,
         CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC,
         CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC,
+        CLASSIFICATION_THRESHOLD,
         HORIZON_YEARS,
         MLFLOW_EXPERIMENT_NAME,
         OVERFIT_F1_GAP_THRESHOLD,
@@ -69,6 +71,7 @@ except ModuleNotFoundError:
         CALIBRATION_CV_FOLDS,
         CALIBRATION_MIN_MINORITY_FRACTION_FOR_ISOTONIC,
         CALIBRATION_MIN_SAMPLES_FOR_ISOTONIC,
+        CLASSIFICATION_THRESHOLD,
         HORIZON_YEARS,
         MLFLOW_EXPERIMENT_NAME,
         OVERFIT_F1_GAP_THRESHOLD,
@@ -90,6 +93,7 @@ except ModuleNotFoundError:
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 MODEL_OUTPUT_PATH = PROJECT_ROOT / "models" / "model.pkl"
 MODEL_OUTPUT_PATH_REGRESSOR = PROJECT_ROOT / "models" / "model_regressor.pkl"
+REPORTS_DIR = PROJECT_ROOT / "reports"
 _DEFAULT_SQLITE = (PROJECT_ROOT / "mlflow.db").resolve()
 DEFAULT_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", f"sqlite:///{_DEFAULT_SQLITE}")
 
@@ -303,6 +307,128 @@ def _log_calibration_curve(y_true, y_proba, model_type: str, n_bins: int = 10) -
         plt.close(fig)
     except Exception as exc:  # pragma: no cover - purely cosmetic artifact
         print(f"⚠️  Calibration plot skipped ({exc}).", flush=True)
+
+
+CONFUSION_MATRIX_CLASS_LABELS = ("Pas de bris ≤ 5 ans", "Bris ≤ 5 ans")
+
+
+def compute_confusion_counts(y_true, y_pred) -> dict:
+    """Confusion matrix counts for the fixed-horizon (5y) binary target.
+
+    labels=[0, 1] pins the matrix layout regardless of which classes happen
+    to be present in a given slice, so `.ravel()` always unpacks as
+    (tn, fp, fn, tp) — 0 = no break within the horizon, 1 = break within it.
+    """
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred, labels=[0, 1]).ravel()
+    return {
+        "true_negatives": int(tn),
+        "false_positives": int(fp),
+        "false_negatives": int(fn),
+        "true_positives": int(tp),
+    }
+
+
+def save_confusion_matrix_csv(counts: dict, threshold: float, reports_dir: Path = REPORTS_DIR) -> Path:
+    """Write reports/confusion_matrix_test.csv (temporal test set only)."""
+    reports_dir = Path(reports_dir)
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = reports_dir / "confusion_matrix_test.csv"
+    pd.DataFrame(
+        [
+            {
+                "horizon_years": int(HORIZON_YEARS),
+                "threshold": float(threshold),
+                "true_negatives": counts["true_negatives"],
+                "false_positives": counts["false_positives"],
+                "false_negatives": counts["false_negatives"],
+                "true_positives": counts["true_positives"],
+            }
+        ]
+    ).to_csv(csv_path, index=False)
+    return csv_path
+
+
+def save_confusion_matrix_png(counts: dict, threshold: float, reports_dir: Path = REPORTS_DIR) -> Path:
+    """Render reports/confusion_matrix_test.png with business-facing labels.
+
+    Rows = true classes, columns = predicted classes (standard confusion
+    matrix orientation), fixed to the project's 5-year horizon.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    matrix = np.array(
+        [
+            [counts["true_negatives"], counts["false_positives"]],
+            [counts["false_negatives"], counts["true_positives"]],
+        ]
+    )
+
+    reports_dir = Path(reports_dir)
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    fig, ax = plt.subplots(figsize=(7, 5.5))
+    im = ax.imshow(matrix, cmap="Blues")
+    ax.set_xticks([0, 1])
+    ax.set_yticks([0, 1])
+    ax.set_xticklabels(CONFUSION_MATRIX_CLASS_LABELS)
+    ax.set_yticklabels(CONFUSION_MATRIX_CLASS_LABELS)
+    ax.set_xlabel("Classe prédite")
+    ax.set_ylabel("Vraie classe")
+    ax.set_title(
+        f"Matrice de confusion — Test temporel — Horizon {int(HORIZON_YEARS)} ans\n"
+        f"(seuil={float(threshold):.2f})"
+    )
+    vmax = matrix.max() if matrix.max() > 0 else 1
+    for i in range(2):
+        for j in range(2):
+            ax.text(
+                j,
+                i,
+                str(int(matrix[i, j])),
+                ha="center",
+                va="center",
+                fontsize=14,
+                fontweight="bold",
+                color="white" if matrix[i, j] > vmax / 2 else "black",
+            )
+    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    fig.tight_layout()
+
+    png_path = reports_dir / "confusion_matrix_test.png"
+    fig.savefig(png_path, bbox_inches="tight")
+    plt.close(fig)
+    return png_path
+
+
+def log_confusion_matrix_artifacts(
+    y_test,
+    y_pred_test,
+    threshold: float = CLASSIFICATION_THRESHOLD,
+    reports_dir: Path = REPORTS_DIR,
+) -> dict:
+    """Build + log the fixed-horizon (5y) confusion matrix on the test set only.
+
+    Computed exclusively on X_test/y_test predictions from the *calibrated*
+    model thresholded at CLASSIFICATION_THRESHOLD — never on train data.
+    Logs test_true_negatives / test_false_positives / test_false_negatives /
+    test_true_positives as MLflow metrics, plus the CSV/PNG as artifacts.
+    """
+    counts = compute_confusion_counts(y_test, y_pred_test)
+    csv_path = save_confusion_matrix_csv(counts, threshold, reports_dir=reports_dir)
+    png_path = save_confusion_matrix_png(counts, threshold, reports_dir=reports_dir)
+
+    mlflow.log_artifact(str(csv_path))
+    mlflow.log_artifact(str(png_path))
+
+    return {
+        "test_true_negatives": float(counts["true_negatives"]),
+        "test_false_positives": float(counts["false_positives"]),
+        "test_false_negatives": float(counts["false_negatives"]),
+        "test_true_positives": float(counts["true_positives"]),
+    }
 
 
 def recall_at_k(y_true, y_proba, k_fraction: float = RECALL_AT_K_FRACTION) -> float:
@@ -611,6 +737,15 @@ def train_evaluate_and_log(
     brier_test = float(brier_score_loss(y_test, test_proba))
     _log_calibration_curve(y_test, test_proba, model_type)
 
+    # --- Confusion matrix (fixed 5-year horizon, temporal test set only) --------
+    # Decision rule pinned to CLASSIFICATION_THRESHOLD (not test_pred's implicit
+    # 0.5 cutoff) and computed strictly from the calibrated test probabilities —
+    # X_train/y_train are never involved here.
+    y_pred_test_at_threshold = (test_proba >= CLASSIFICATION_THRESHOLD).astype(int)
+    confusion_metrics = log_confusion_matrix_artifacts(
+        y_test, y_pred_test_at_threshold, threshold=CLASSIFICATION_THRESHOLD
+    )
+
     optuna_score, overfit_cv_gap = build_optuna_score(cv_metrics["pr_auc"], train_metrics["f1"], cv_metrics["f1"])
     overfit_f1_gap = float(max(0.0, train_metrics["f1"] - test_metrics["f1"]))
 
@@ -633,6 +768,7 @@ def train_evaluate_and_log(
         "passes_overfit_gate": float(overfit_f1_gap <= OVERFIT_F1_GAP_THRESHOLD),
         "brier_train": brier_train,
         "brier_test": brier_test,
+        **confusion_metrics,
     }
 
     if is_optimized and params is not None:

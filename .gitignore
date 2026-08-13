@@ -21,6 +21,9 @@ training_jobs/
 *.pkl
 models/
 
+# Rapports générés à chaque entraînement (confusion matrix, etc.)
+reports/
+
 /h2o_feature_importance.csv
 mlruns.mlflow3-backup/
 mlflow.db.mlflow3-backup
