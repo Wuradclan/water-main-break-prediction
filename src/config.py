@@ -7,6 +7,7 @@ project_root = Path(__file__).resolve().parent.parent
 # ---------------------------------------------------------------------------
 raw_breaks_path = project_root / "data" / "raw" / "Water_Main_Breaks.csv"
 processed_snapshots_path = project_root / "data" / "processed" / "pipe_break_snapshots.csv"
+invalid_snapshots_path = project_root / "data" / "processed" / "invalid_snapshot_before_installation.csv"
 dataset_checksums_path = project_root / "data" / "SHA256SUMS"
 
 

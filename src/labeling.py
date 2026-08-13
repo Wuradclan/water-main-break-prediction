@@ -45,6 +45,7 @@ try:
         NEGATIVE_OFFSETS_BEFORE_POSITIVE_YEARS,
         OBSERVATION_END,
         OBSERVATION_START,
+        invalid_snapshots_path,
         processed_snapshots_path,
         raw_breaks_path,
     )
@@ -61,6 +62,7 @@ except ModuleNotFoundError:
         NEGATIVE_OFFSETS_BEFORE_POSITIVE_YEARS,
         OBSERVATION_END,
         OBSERVATION_START,
+        invalid_snapshots_path,
         processed_snapshots_path,
         raw_breaks_path,
     )
@@ -252,12 +254,72 @@ def build_snapshots_for_asset(
     return snapshots
 
 
+def filter_snapshots_after_installation(
+    snapshots: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Enforce the business rule: a pipe cannot be observed before it is installed.
+
+    - If snapshot_date and install_date both exist, keep only
+      snapshot_date >= install_date.
+    - Otherwise (this breaks-only KW extract only has ASSET_YEAR_INSTALLED),
+      fall back to snapshot_year (derived from snapshot_date) and
+      install_year, keeping only snapshot_year >= install_year.
+    - ">=" is used because a pipe can have age 0 the same year/day it was
+      installed.
+    - Rows missing the install reference are *not* order violations (missing
+      data, not "before installation") and are kept with age_years untouched.
+
+    age_years is recomputed only for the surviving rows, strictly after the
+    filter, from the granularity actually available (year-level here).
+
+    Returns (valid_snapshots, invalid_snapshots). invalid_snapshots carries an
+    "exclusion_reason" column for the audit CSV.
+    """
+    df = snapshots.copy()
+    df["snapshot_date"] = pd.to_datetime(df["snapshot_date"], errors="coerce")
+
+    if "install_date" in df.columns:
+        df["install_date"] = pd.to_datetime(df["install_date"], errors="coerce")
+        comparable = df["snapshot_date"].notna() & df["install_date"].notna()
+        order_violation = comparable & (df["snapshot_date"] < df["install_date"])
+    else:
+        df["snapshot_year"] = df["snapshot_date"].dt.year
+        comparable = df["snapshot_year"].notna() & df["install_year"].notna()
+        order_violation = comparable & (df["snapshot_year"] < df["install_year"])
+
+    invalid_snapshots = df.loc[order_violation].copy()
+    valid_snapshots = df.loc[~order_violation].copy()
+
+    if not invalid_snapshots.empty:
+        invalid_snapshots["exclusion_reason"] = "snapshot_before_installation"
+
+    if "install_date" in valid_snapshots.columns:
+        has_install = valid_snapshots["install_date"].notna()
+        valid_snapshots["age_years"] = np.nan
+        valid_snapshots.loc[has_install, "age_years"] = (
+            (valid_snapshots.loc[has_install, "snapshot_date"] - valid_snapshots.loc[has_install, "install_date"]).dt.days
+            / 365.25
+        )
+    elif "snapshot_year" in valid_snapshots.columns:
+        has_install = valid_snapshots["install_year"].notna()
+        valid_snapshots["age_years"] = np.nan
+        valid_snapshots.loc[has_install, "age_years"] = (
+            valid_snapshots.loc[has_install, "snapshot_year"] - valid_snapshots.loc[has_install, "install_year"]
+        )
+        valid_snapshots = valid_snapshots.drop(columns=["snapshot_year"])
+
+    return valid_snapshots, invalid_snapshots
+
+
 def generate_snapshot_dataset(
     events: Optional[pd.DataFrame] = None,
     csv_path: Optional[Path] = None,
     horizon_years: int = HORIZON_YEARS,
     observation_start: Optional[str] = None,
     observation_end: Optional[str] = None,
+    invalid_output_path: Optional[Path] = None,
+    verbose: bool = False,
 ) -> pd.DataFrame:
     """Generate the full snapshot table used for later training phases."""
     if events is None:
@@ -277,11 +339,36 @@ def generate_snapshot_dataset(
             )
         )
 
+    n_loaded = len(rows)
+
     if not rows:
         return pd.DataFrame(columns=SNAPSHOT_OUTPUT_COLUMNS + ["snapshot_origin"])
 
     snapshots = pd.DataFrame(rows)
     snapshots = snapshots.sort_values(["snapshot_date", "asset_id"]).reset_index(drop=True)
+
+    # Business rule: a pipe cannot be observed before it is installed.
+    snapshots, invalid_snapshots = filter_snapshots_after_installation(snapshots)
+    snapshots = snapshots.sort_values(["snapshot_date", "asset_id"]).reset_index(drop=True)
+
+    audit_path = Path(invalid_output_path) if invalid_output_path is not None else Path(invalid_snapshots_path)
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    invalid_snapshots.to_csv(audit_path, index=False)
+
+    n_kept = len(snapshots)
+    n_excluded = len(invalid_snapshots)
+    n_missing_age = int(snapshots["age_years"].isna().sum())
+
+    if verbose:
+        print(f"Snapshots loaded (pre-validation): {n_loaded}")
+        print(f"Snapshots kept: {n_kept}")
+        print(f"Snapshots excluded (snapshot before installation): {n_excluded}")
+        print(f"Snapshots with missing age_years: {n_missing_age}")
+        print(f"Audit file written -> {audit_path}")
+
+    assert (snapshots["age_years"].dropna() >= 0).all(), (
+        "Le dataset final contient des age_years négatifs."
+    )
 
     # Soft contract check: modeling features must not include leakage columns.
     forbidden_present = [c for c in LEAKAGE_FORBIDDEN_COLUMNS if c.lower() in {x.lower() for x in snapshots.columns}]
@@ -384,7 +471,7 @@ if __name__ == "__main__":
     print(f"Break events (deduped by asset/day): {len(events)}")
     print(f"Distinct assets: {events['asset_id'].nunique()}")
 
-    snapshots = generate_snapshot_dataset(events)
+    snapshots = generate_snapshot_dataset(events, verbose=True)
     out = save_snapshot_dataset(snapshots)
     summary = summarize_snapshots(snapshots)
 

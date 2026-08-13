@@ -1,4 +1,4 @@
 column,q1,q3,lower_iqr,upper_iqr,outlier_count
-diameter_mm,150.0,200.0,75.0,275.0,2232
-age_years,24.25,46.0,-8.375,78.625,1587
-prior_break_count,0.0,0.0,0.0,0.0,2675
+diameter_mm,150.0,200.0,75.0,275.0,1683
+age_years,30.0,48.0,3.0,75.0,275
+prior_break_count,0.0,0.0,0.0,0.0,2517
