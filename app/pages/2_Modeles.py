@@ -31,10 +31,12 @@ try:
     from evaluation_display import (
         CONFUSION_MATRIX_EXPLANATION,
         CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE,
         CONFUSION_MATRIX_SECTION_CAPTION,
         CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
-        confusion_matrix_image_url,
+        ConfusionMatrixFetchError,
         extract_confusion_counts,
+        fetch_confusion_matrix_image,
         format_confusion_count,
         should_display_confusion_matrix,
     )
@@ -45,10 +47,12 @@ except ModuleNotFoundError:
     from app.evaluation_display import (
         CONFUSION_MATRIX_EXPLANATION,
         CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE,
         CONFUSION_MATRIX_SECTION_CAPTION,
         CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
-        confusion_matrix_image_url,
+        ConfusionMatrixFetchError,
         extract_confusion_counts,
+        fetch_confusion_matrix_image,
         format_confusion_count,
         should_display_confusion_matrix,
     )
@@ -193,15 +197,26 @@ else:
         st.caption(CONFUSION_MATRIX_SECTION_CAPTION)
         render_confusion_matrix_metrics(extract_confusion_counts(evaluation))
 
-        if evaluation.get("artifact_available"):
-            st.image(
-                confusion_matrix_image_url(API_BASE_URL, cm_run_id),
-                caption=CONFUSION_MATRIX_IMAGE_CAPTION,
-                use_container_width=True,
-            )
-            st.caption(CONFUSION_MATRIX_EXPLANATION)
-        else:
+        if not evaluation.get("artifact_available"):
             st.info(CONFUSION_MATRIX_UNAVAILABLE_MESSAGE)
+        else:
+            # Récupéré ici, côté processus Streamlit, puis transmis en bytes
+            # à st.image() : API_BASE_URL (http://api:8000 dans Docker) n'est
+            # résolu que par les conteneurs, jamais par le navigateur client.
+            try:
+                cm_image_bytes = fetch_confusion_matrix_image(API_BASE_URL, cm_run_id)
+            except ConfusionMatrixFetchError as exc:
+                st.warning(str(exc))
+            else:
+                if cm_image_bytes is None:
+                    st.info(CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE)
+                else:
+                    st.image(
+                        cm_image_bytes,
+                        caption=CONFUSION_MATRIX_IMAGE_CAPTION,
+                        use_container_width=True,
+                    )
+                    st.caption(CONFUSION_MATRIX_EXPLANATION)
 
 st.markdown("---")
 st.subheader("🗑️ Supprimer un modèle")

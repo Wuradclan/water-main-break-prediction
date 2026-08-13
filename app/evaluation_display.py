@@ -18,6 +18,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+import requests
+
 HORIZON_YEARS = 5
 
 CONFUSION_MATRIX_SECTION_CAPTION = (
@@ -39,6 +41,10 @@ CONFUSION_MATRIX_EXPLANATION = (
 CONFUSION_MATRIX_UNAVAILABLE_MESSAGE = (
     "Matrice de confusion indisponible pour ce run "
     "(entraîné avant l'ajout de cette fonctionnalité, ou artefact manquant)."
+)
+
+CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE = (
+    "Matrice de confusion non disponible pour ce run historique."
 )
 
 
@@ -87,5 +93,57 @@ def extract_confusion_counts(evaluation: Optional[dict]) -> dict:
 
 
 def confusion_matrix_image_url(api_base_url: str, run_id: str) -> str:
-    """Build the GET /models/{run_id}/confusion-matrix URL for st.image()."""
+    """Build the GET /models/{run_id}/confusion-matrix URL.
+
+    Only used server-side by fetch_confusion_matrix_image below: this URL
+    (e.g. http://api:8000/...) resolves inside the Docker network but not in
+    the end user's browser, so it must never be handed to st.image() as-is.
+    """
     return f"{api_base_url.rstrip('/')}/models/{run_id}/confusion-matrix"
+
+
+class ConfusionMatrixFetchError(RuntimeError):
+    """Raised when GET .../confusion-matrix returns something other than a
+    404 (no artifact) or a 200 PNG — an unexpected API/network error that
+    callers should surface instead of silently hiding the image."""
+
+
+def fetch_confusion_matrix_image(
+    api_base_url: str, run_id: str, timeout: float = 30
+) -> Optional[bytes]:
+    """
+    Fetch the confusion-matrix PNG bytes from the Streamlit *process* itself
+    (server-side), rather than handing the browser a direct API URL: inside
+    Docker, API_BASE_URL is typically http://api:8000, a hostname the user's
+    browser cannot resolve even though the Streamlit container can.
+
+    Returns:
+    - the raw PNG bytes on a 200 response with an image/png Content-Type;
+    - None on 404 (unknown run, regression run, or missing artifact —
+      never distinguished here, the caller just shows a "not available"
+      message);
+
+    Raises:
+    - ConfusionMatrixFetchError for any other status code or an unexpected
+      Content-Type, so callers can surface a controlled error instead of
+      silently displaying nothing.
+    """
+    url = confusion_matrix_image_url(api_base_url, run_id)
+    response = requests.get(url, timeout=timeout)
+
+    if response.status_code == 404:
+        return None
+    if response.status_code != 200:
+        raise ConfusionMatrixFetchError(
+            f"Erreur API ({response.status_code}) lors de la récupération "
+            f"de la matrice de confusion pour le run {run_id!r}."
+        )
+
+    content_type = response.headers.get("Content-Type", "")
+    if not content_type.startswith("image/png"):
+        raise ConfusionMatrixFetchError(
+            f"Réponse inattendue (Content-Type={content_type!r}) pour la "
+            f"matrice de confusion du run {run_id!r}."
+        )
+
+    return response.content

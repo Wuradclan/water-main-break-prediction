@@ -28,10 +28,12 @@ try:
     from evaluation_display import (
         CONFUSION_MATRIX_EXPLANATION,
         CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE,
         CONFUSION_MATRIX_SECTION_CAPTION,
         CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
-        confusion_matrix_image_url,
+        ConfusionMatrixFetchError,
         extract_confusion_counts,
+        fetch_confusion_matrix_image,
         format_confusion_count,
         should_display_confusion_matrix,
     )
@@ -41,10 +43,12 @@ except ModuleNotFoundError:
     from app.evaluation_display import (
         CONFUSION_MATRIX_EXPLANATION,
         CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE,
         CONFUSION_MATRIX_SECTION_CAPTION,
         CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
-        confusion_matrix_image_url,
+        ConfusionMatrixFetchError,
         extract_confusion_counts,
+        fetch_confusion_matrix_image,
         format_confusion_count,
         should_display_confusion_matrix,
     )
@@ -165,8 +169,21 @@ def render_confusion_matrix_section(run_id: str) -> None:
     col3.metric("Faux négatifs", format_confusion_count(counts["false_negatives"]))
     col4.metric("Vrais positifs", format_confusion_count(counts["true_positives"]))
 
+    # Le PNG est récupéré ici, côté processus Streamlit, puis transmis en
+    # bytes à st.image() : API_BASE_URL (ex: http://api:8000 dans Docker)
+    # n'est résolu que par les conteneurs, jamais par le navigateur.
+    try:
+        image_bytes = fetch_confusion_matrix_image(API_BASE_URL, run_id)
+    except ConfusionMatrixFetchError as exc:
+        st.warning(str(exc))
+        return
+
+    if image_bytes is None:
+        st.info(CONFUSION_MATRIX_IMAGE_UNAVAILABLE_MESSAGE)
+        return
+
     st.image(
-        confusion_matrix_image_url(API_BASE_URL, run_id),
+        image_bytes,
         caption=CONFUSION_MATRIX_IMAGE_CAPTION,
         use_container_width=True,
     )
