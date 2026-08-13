@@ -22,6 +22,33 @@ import re
 import requests
 import streamlit as st
 
+try:
+    # Exécution Streamlit réelle : le dossier app/ (contenant streamlit_app.py)
+    # est ajouté à sys.path, donc les imports "à plat" fonctionnent.
+    from evaluation_display import (
+        CONFUSION_MATRIX_EXPLANATION,
+        CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_SECTION_CAPTION,
+        CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
+        confusion_matrix_image_url,
+        extract_confusion_counts,
+        format_confusion_count,
+        should_display_confusion_matrix,
+    )
+except ModuleNotFoundError:
+    # Exécution hors Streamlit (ex: pytest depuis la racine du repo) : le
+    # package namespace "app" est importable directement.
+    from app.evaluation_display import (
+        CONFUSION_MATRIX_EXPLANATION,
+        CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_SECTION_CAPTION,
+        CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
+        confusion_matrix_image_url,
+        extract_confusion_counts,
+        format_confusion_count,
+        should_display_confusion_matrix,
+    )
+
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
 
@@ -95,6 +122,55 @@ def render_classification_metrics(result: dict) -> None:
         f"run `{result.get('run_id', '—')}` · "
         f"horizon {result.get('horizon_years', '—')} ans"
     )
+
+
+def render_confusion_matrix_section(run_id: str) -> None:
+    """
+    Affiche les comptes TN/FP/FN/TP et l'image de la matrice de confusion
+    pour le run qui vient d'être entraîné.
+
+    Source de vérité : GET /models/{run_id}/evaluation et
+    GET /models/{run_id}/confusion-matrix, jamais un fichier reports/ local —
+    l'image affichée correspond donc toujours exactement à ce `run_id`.
+    Ne s'affiche que pour la classification (task == "classification").
+    """
+    try:
+        response = api_get(f"/models/{run_id}/evaluation", timeout=15)
+    except requests.RequestException as exc:
+        st.warning(f"Impossible de récupérer l'évaluation du run `{run_id}` : {exc}")
+        return
+
+    if response.status_code != 200:
+        st.warning(
+            f"Erreur API ({response.status_code}) lors de la récupération "
+            "de la matrice de confusion."
+        )
+        return
+
+    evaluation = response.json()
+    if not should_display_confusion_matrix(evaluation.get("task")):
+        return
+
+    st.subheader("Matrice de confusion")
+    st.caption(CONFUSION_MATRIX_SECTION_CAPTION)
+
+    if not evaluation.get("artifact_available"):
+        st.info(CONFUSION_MATRIX_UNAVAILABLE_MESSAGE)
+        return
+
+    counts = extract_confusion_counts(evaluation)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Vrais négatifs", format_confusion_count(counts["true_negatives"]))
+    col2.metric("Faux positifs", format_confusion_count(counts["false_positives"]))
+    col3.metric("Faux négatifs", format_confusion_count(counts["false_negatives"]))
+    col4.metric("Vrais positifs", format_confusion_count(counts["true_positives"]))
+
+    st.image(
+        confusion_matrix_image_url(API_BASE_URL, run_id),
+        caption=CONFUSION_MATRIX_IMAGE_CAPTION,
+        use_container_width=True,
+    )
+    st.caption(CONFUSION_MATRIX_EXPLANATION)
 
 
 def render_regression_metrics(result: dict) -> None:
@@ -323,6 +399,9 @@ def poll_training_status() -> None:
                 render_regression_metrics(result)
             else:
                 render_classification_metrics(result)
+                run_id = result.get("run_id")
+                if run_id:
+                    render_confusion_matrix_section(run_id)
         else:
             st.warning(
                 "Entraînement terminé, mais aucune métrique champion n'a été renvoyée. "

@@ -130,9 +130,9 @@ def test_log_confusion_matrix_artifacts_logs_csv_and_png(tmp_path, monkeypatch):
     }
 
     client = mlflow.tracking.MlflowClient()
-    artifact_names = {a.path for a in client.list_artifacts(run_id)}
-    assert "confusion_matrix_test.csv" in artifact_names
-    assert "confusion_matrix_test.png" in artifact_names
+    artifact_names = {a.path for a in client.list_artifacts(run_id, path="evaluation")}
+    assert "evaluation/confusion_matrix_test.csv" in artifact_names
+    assert "evaluation/confusion_matrix_test.png" in artifact_names
 
 
 def _synthetic_frame(n_samples, weights, n_features=4, random_state=0):
@@ -196,6 +196,6 @@ def test_train_evaluate_and_log_reports_confusion_matrix_metrics(tmp_path):
     assert logged_run.data.metrics.get("test_true_positives") == metrics["test_true_positives"]
 
     client = mlflow.tracking.MlflowClient()
-    artifact_names = {a.path for a in client.list_artifacts(run_id)}
-    assert "confusion_matrix_test.csv" in artifact_names
-    assert "confusion_matrix_test.png" in artifact_names
+    artifact_names = {a.path for a in client.list_artifacts(run_id, path="evaluation")}
+    assert "evaluation/confusion_matrix_test.csv" in artifact_names
+    assert "evaluation/confusion_matrix_test.png" in artifact_names

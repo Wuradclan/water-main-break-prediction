@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import math
 import subprocess
+import tempfile
 import threading
 import traceback
 import uuid
@@ -25,11 +26,12 @@ from pathlib import Path
 from typing import Optional
 
 import mlflow
+import mlflow.artifacts
 import mlflow.h2o
 import mlflow.sklearn
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Response
 from mlflow.entities import ViewType
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -45,9 +47,15 @@ from src.model_gate import (
 from src.schema import FEATURE_COLUMNS, INFERENCE_INPUT_COLUMNS, TARGET_COLUMN
 
 try:
-    from src.config import CLASSIFICATION_THRESHOLD, MLFLOW_EXPERIMENT_NAME
+    from src.config import CLASSIFICATION_THRESHOLD, HORIZON_YEARS, MLFLOW_EXPERIMENT_NAME
 except ModuleNotFoundError:
-    from config import CLASSIFICATION_THRESHOLD, MLFLOW_EXPERIMENT_NAME
+    from config import CLASSIFICATION_THRESHOLD, HORIZON_YEARS, MLFLOW_EXPERIMENT_NAME
+
+# Artifact path used by src/train.py to log the fixed-5-year-horizon
+# confusion matrix (see log_confusion_matrix_artifacts). Kept as a single
+# constant so the /models/{run_id}/evaluation and .../confusion-matrix
+# endpoints can never drift from where the trainer actually logs it.
+CONFUSION_MATRIX_ARTIFACT_PATH = "evaluation/confusion_matrix_test.png"
 
 
 app = FastAPI(
@@ -810,3 +818,131 @@ def delete_model(
 
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Échec de la suppression : {exc}")
+
+
+def _get_run_or_404(client: "mlflow.tracking.MlflowClient", run_id: str):
+    """Fetch a single MLflow run, translating any lookup failure into a 404.
+
+    Every field returned by /models/{run_id}/evaluation and
+    /models/{run_id}/confusion-matrix is read from *this* run object, never
+    from a shared/in-memory champion or a local reports/ file, so the
+    response always matches the requested run_id.
+    """
+    try:
+        return client.get_run(run_id)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=404, detail=f"Run introuvable : {run_id!r}."
+        ) from exc
+
+
+def _run_task(run) -> str:
+    """params.task is only set for regression runs (see src/train.py); every
+    other run predates that param or is a classification run, hence the
+    'classification' default (mirrors GET /models)."""
+    return run.data.params.get("task", "classification")
+
+
+def _confusion_matrix_artifact_exists(client: "mlflow.tracking.MlflowClient", run_id: str) -> bool:
+    """True only if this exact run logged evaluation/confusion_matrix_test.png."""
+    try:
+        entries = client.list_artifacts(run_id, path="evaluation")
+    except Exception:
+        return False
+    return any(entry.path == CONFUSION_MATRIX_ARTIFACT_PATH for entry in entries)
+
+
+def _safe_int_metric(value) -> Optional[int]:
+    safe_value = json_safe_float(value)
+    return int(round(safe_value)) if safe_value is not None else None
+
+
+@app.get("/models/{run_id}/evaluation")
+def get_model_evaluation(run_id: str):
+    """
+    Métriques de test + comptes de la matrice de confusion pour un run donné.
+
+    Fonctionnalité réservée à la classification à horizon fixe de 5 ans : pour
+    un run de régression, `confusion_matrix` est `null` et `artifact_available`
+    vaut `false` (pas d'erreur, pour que l'historique des modèles puisse
+    afficher « — » sans avoir à distinguer les cas côté UI).
+    """
+    tracking_uri = resolve_tracking_uri()
+    client = mlflow.tracking.MlflowClient(tracking_uri=tracking_uri)
+    run = _get_run_or_404(client, run_id)
+
+    task = _run_task(run)
+    is_classification = task == "classification"
+    metrics = run.data.metrics
+
+    confusion_matrix = None
+    artifact_available = False
+    if is_classification:
+        confusion_matrix = {
+            "true_negatives": _safe_int_metric(metrics.get("test_true_negatives")),
+            "false_positives": _safe_int_metric(metrics.get("test_false_positives")),
+            "false_negatives": _safe_int_metric(metrics.get("test_false_negatives")),
+            "true_positives": _safe_int_metric(metrics.get("test_true_positives")),
+        }
+        artifact_available = _confusion_matrix_artifact_exists(client, run_id)
+
+    return {
+        "run_id": run_id,
+        "task": task,
+        "horizon_years": HORIZON_YEARS if is_classification else None,
+        "threshold": CLASSIFICATION_THRESHOLD if is_classification else None,
+        "metrics": {
+            "pr_auc_test": json_safe_float(metrics.get("pr_auc_test")),
+            "f1_test": json_safe_float(metrics.get("f1_test")),
+            "roc_auc_test": json_safe_float(metrics.get("roc_auc_test")),
+            "recall_at_k": json_safe_float(metrics.get("recall_at_k_test")),
+            "brier_test": json_safe_float(metrics.get("brier_test")),
+        }
+        if is_classification
+        else {},
+        "confusion_matrix": confusion_matrix,
+        "artifact_available": artifact_available,
+    }
+
+
+@app.get("/models/{run_id}/confusion-matrix")
+def get_confusion_matrix_image(run_id: str):
+    """
+    Renvoie l'image PNG evaluation/confusion_matrix_test.png du run demandé.
+
+    404 (jamais un chemin local exposé au client) si le run n'existe pas,
+    s'il s'agit d'une régression, ou si l'artefact est absent (runs plus
+    anciens entraînés avant cette fonctionnalité).
+    """
+    tracking_uri = resolve_tracking_uri()
+    client = mlflow.tracking.MlflowClient(tracking_uri=tracking_uri)
+    run = _get_run_or_404(client, run_id)
+
+    if _run_task(run) != "classification":
+        raise HTTPException(
+            status_code=404,
+            detail=f"Le run {run_id!r} est une régression : pas de matrice de confusion.",
+        )
+
+    if not _confusion_matrix_artifact_exists(client, run_id):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Aucun artefact de matrice de confusion pour le run {run_id!r}.",
+        )
+
+    try:
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            local_path = mlflow.artifacts.download_artifacts(
+                run_id=run_id,
+                artifact_path=CONFUSION_MATRIX_ARTIFACT_PATH,
+                dst_path=tmp_dir,
+                tracking_uri=tracking_uri,
+            )
+            png_bytes = Path(local_path).read_bytes()
+    except Exception as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Impossible de charger l'artefact de matrice de confusion : {exc}",
+        ) from exc
+
+    return Response(content=png_bytes, media_type="image/png")

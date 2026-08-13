@@ -420,8 +420,11 @@ def log_confusion_matrix_artifacts(
     csv_path = save_confusion_matrix_csv(counts, threshold, reports_dir=reports_dir)
     png_path = save_confusion_matrix_png(counts, threshold, reports_dir=reports_dir)
 
-    mlflow.log_artifact(str(csv_path))
-    mlflow.log_artifact(str(png_path))
+    # Logged under an "evaluation/" artifact subfolder so the API can fetch
+    # them deterministically for a given run_id (evaluation/confusion_matrix_test.png),
+    # rather than relying on a local reports/ file that isn't run-specific.
+    mlflow.log_artifact(str(csv_path), artifact_path="evaluation")
+    mlflow.log_artifact(str(png_path), artifact_path="evaluation")
 
     return {
         "test_true_negatives": float(counts["true_negatives"]),

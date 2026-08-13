@@ -28,10 +28,30 @@ try:
     # Exécution Streamlit réelle : le dossier app/ (contenant streamlit_app.py)
     # est ajouté à sys.path, donc les imports "à plat" fonctionnent.
     from formatting import format_f1_pair, format_metric
+    from evaluation_display import (
+        CONFUSION_MATRIX_EXPLANATION,
+        CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_SECTION_CAPTION,
+        CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
+        confusion_matrix_image_url,
+        extract_confusion_counts,
+        format_confusion_count,
+        should_display_confusion_matrix,
+    )
 except ModuleNotFoundError:
     # Exécution hors Streamlit (ex: pytest depuis la racine du repo) : le
     # package namespace "app" est importable directement.
     from app.formatting import format_f1_pair, format_metric
+    from app.evaluation_display import (
+        CONFUSION_MATRIX_EXPLANATION,
+        CONFUSION_MATRIX_IMAGE_CAPTION,
+        CONFUSION_MATRIX_SECTION_CAPTION,
+        CONFUSION_MATRIX_UNAVAILABLE_MESSAGE,
+        confusion_matrix_image_url,
+        extract_confusion_counts,
+        format_confusion_count,
+        should_display_confusion_matrix,
+    )
 
 API_BASE_URL = os.getenv("API_BASE_URL", "http://api:8000").rstrip("/")
 
@@ -70,6 +90,26 @@ def fetch_models(include_deleted: bool = False) -> list[dict]:
 
 def task_label(task: str | None) -> str:
     return TASK_LABELS.get(task, task or "classification")
+
+
+def fetch_evaluation(run_id: str) -> dict | None:
+    """GET /models/{run_id}/evaluation — source de vérité pour ce run précis
+    (jamais un fichier reports/ local ni le champion en mémoire)."""
+    try:
+        response = requests.get(f"{API_BASE_URL}/models/{run_id}/evaluation", timeout=15)
+        if response.status_code != 200:
+            return None
+        return response.json()
+    except requests.RequestException:
+        return None
+
+
+def render_confusion_matrix_metrics(counts: dict) -> None:
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Vrais négatifs", format_confusion_count(counts["true_negatives"]))
+    col2.metric("Faux positifs", format_confusion_count(counts["false_positives"]))
+    col3.metric("Faux négatifs", format_confusion_count(counts["false_negatives"]))
+    col4.metric("Vrais positifs", format_confusion_count(counts["true_positives"]))
 
 
 include_deleted = st.checkbox("Afficher aussi les modèles déjà supprimés", value=False)
@@ -118,6 +158,50 @@ display_df = df[[
 
 st.subheader(f"{len(models)} modèle(s) trouvé(s)")
 st.dataframe(display_df, use_container_width=True, hide_index=True)
+
+st.markdown("---")
+st.subheader("📊 Matrice de confusion — historique (classification)")
+st.caption(
+    "Réservé à la classification à horizon fixe de 5 ans : la matrice provient "
+    "toujours du run MLflow sélectionné ci-dessous, jamais d'un fichier global."
+)
+
+classification_models = [m for m in models if should_display_confusion_matrix(m.get("task"))]
+
+if not classification_models:
+    st.info("Aucun run de classification disponible.")
+else:
+    def _cm_run_label(m: dict) -> str:
+        label = f"{m['run_name']} — {m['model_type']} ({m['run_id'][:8]}...)"
+        if m["is_current_champion"]:
+            label += " 🏆"
+        return label
+
+    cm_run_labels = {_cm_run_label(m): m["run_id"] for m in classification_models}
+    cm_selected_label = st.selectbox(
+        "Choisir un run de classification",
+        options=list(cm_run_labels.keys()),
+        key="confusion_matrix_run_selector",
+    )
+    cm_run_id = cm_run_labels[cm_selected_label]
+
+    evaluation = fetch_evaluation(cm_run_id)
+
+    if evaluation is None or not should_display_confusion_matrix(evaluation.get("task")):
+        st.warning("Impossible de récupérer la matrice de confusion pour ce run.")
+    else:
+        st.caption(CONFUSION_MATRIX_SECTION_CAPTION)
+        render_confusion_matrix_metrics(extract_confusion_counts(evaluation))
+
+        if evaluation.get("artifact_available"):
+            st.image(
+                confusion_matrix_image_url(API_BASE_URL, cm_run_id),
+                caption=CONFUSION_MATRIX_IMAGE_CAPTION,
+                use_container_width=True,
+            )
+            st.caption(CONFUSION_MATRIX_EXPLANATION)
+        else:
+            st.info(CONFUSION_MATRIX_UNAVAILABLE_MESSAGE)
 
 st.markdown("---")
 st.subheader("🗑️ Supprimer un modèle")
