@@ -16,6 +16,7 @@ from src.config import HORIZON_YEARS, dataset_checksums_path, raw_breaks_path
 from src.labeling import (
     build_snapshots_for_asset,
     compute_file_sha256,
+    filter_snapshots_after_installation,
     generate_snapshot_dataset,
     load_break_events,
     summarize_snapshots,
@@ -126,3 +127,76 @@ def test_invalid_negative_window_is_rejected_for_later_break():
 
     assert pd.Timestamp("2005-07-07") in snapshot_dates  # valid positive for T=2010-07-07
     assert pd.Timestamp("2000-07-07") not in snapshot_dates  # invalid negative
+
+
+def _make_snapshot_row(asset_id: str, snapshot_date: str, install_year: int) -> dict:
+    return {
+        "asset_id": asset_id,
+        "snapshot_date": pd.Timestamp(snapshot_date),
+        "material": "CI",
+        "diameter_mm": 150.0,
+        "install_year": install_year,
+        "age_years": -999.0,  # placeholder: must be recomputed strictly after the filter
+        "prior_break_count": 0,
+        TARGET_COLUMN: 0,
+        "horizon_years": 5,
+        "street": "",
+        "snapshot_origin": "test",
+    }
+
+
+def test_filter_snapshots_after_installation_keeps_snapshot_after_install():
+    """Snapshot postérieur à l'installation -> conservé, âge positif."""
+    df = pd.DataFrame([_make_snapshot_row("A1", "2000-01-01", 1990)])
+    valid, invalid = filter_snapshots_after_installation(df)
+
+    assert invalid.empty
+    assert len(valid) == 1
+    assert valid.iloc[0]["age_years"] == 10
+
+
+def test_filter_snapshots_after_installation_allows_zero_age_same_year():
+    """Snapshot le jour/l'année de l'installation -> conservé, âge 0."""
+    df = pd.DataFrame([_make_snapshot_row("A2", "1990-06-15", 1990)])
+    valid, invalid = filter_snapshots_after_installation(df)
+
+    assert invalid.empty
+    assert len(valid) == 1
+    assert valid.iloc[0]["age_years"] == 0
+
+
+def test_filter_snapshots_after_installation_excludes_snapshot_before_install():
+    """Snapshot antérieur à l'installation -> exclu, présent dans l'audit avec la bonne raison."""
+    df = pd.DataFrame([_make_snapshot_row("A3", "1980-01-01", 1990)])
+    valid, invalid = filter_snapshots_after_installation(df)
+
+    assert valid.empty
+    assert len(invalid) == 1
+    assert invalid.iloc[0]["asset_id"] == "A3"
+    assert invalid.iloc[0]["exclusion_reason"] == "snapshot_before_installation"
+
+
+def test_filter_snapshots_after_installation_keeps_missing_install_year():
+    """Install_year manquant -> pas une violation d'ordre, la ligne est conservée."""
+    row = _make_snapshot_row("A4", "2000-01-01", None)
+    row["install_year"] = float("nan")
+    df = pd.DataFrame([row])
+    valid, invalid = filter_snapshots_after_installation(df)
+
+    assert invalid.empty
+    assert len(valid) == 1
+    assert pd.isna(valid.iloc[0]["age_years"])
+
+
+def test_generate_snapshot_dataset_has_no_negative_ages_and_writes_audit(tmp_path):
+    """Le dataset final ne contient jamais age_years < 0 et l'audit est écrit sur disque."""
+    invalid_path = tmp_path / "invalid_snapshot_before_installation.csv"
+    snapshots = generate_snapshot_dataset(invalid_output_path=invalid_path)
+
+    age = pd.to_numeric(snapshots["age_years"], errors="coerce").dropna()
+    assert (age >= 0).all()
+    assert invalid_path.exists()
+
+    invalid_df = pd.read_csv(invalid_path)
+    if not invalid_df.empty:
+        assert (invalid_df["exclusion_reason"] == "snapshot_before_installation").all()

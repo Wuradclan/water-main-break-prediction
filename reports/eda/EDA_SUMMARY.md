@@ -1,5 +1,5 @@
 # EDA — Water Main Break Prediction
-- Snapshots : 12988
+- Snapshots : 11236
 - Doublons exacts : 0
 - Split temporel : train < 2015-01-01, test >= 2015-01-01
 
