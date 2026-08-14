@@ -167,11 +167,26 @@ if st.sidebar.button("Recharger le champion depuis MLflow"):
                 if data.get("status") == "success":
                     reloaded_champion = data.get("champion") or {}
                     reloaded_horizon = format_horizon(reloaded_champion.get("horizon_years"))
-                    st.sidebar.success(
-                        f"{data.get('message', 'Modèle rechargé.')}\n\n"
-                        f"⏱️ **Entraîné pour un horizon de {reloaded_horizon}**"
+                    # Affiche un message de succès dans la sidebar, avec l'horizon des deux modèles classification et regression rechargé.
+                    classifier = data.get("champion") or {}
+                    regressor = data.get("regressor_champion") or {}
+
+                    message = (
+                        "✅ Champion de classification rechargé.\n\n"
+                        f"Modèle : **{classifier.get('model_type', '—')}**\n\n"
+                        f"Horizon : **{format_horizon(classifier.get('horizon_years'))}**"
                     )
-                    st.cache_data.clear()
+
+                    if regressor:
+                        message += (
+                            "\n\n✅ Champion de régression rechargé.\n\n"
+                            f"Modèle : **{regressor.get('model_type', '—')}**"
+                        )
+                    else:
+                        message += "\n\nℹ️ Aucun champion de régression disponible."
+
+                    st.sidebar.success(message)
+                    ###
                 else:
                     st.sidebar.error(data.get("message", "Échec du rechargement."))
             else:
