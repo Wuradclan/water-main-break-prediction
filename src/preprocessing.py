@@ -34,9 +34,11 @@ try:
     )
     from src.labeling import generate_snapshot_dataset, load_break_events
     from src.schema import (
+        CATEGORICAL_COLUMNS,
         FEATURE_COLUMNS,
         LEAKAGE_FORBIDDEN_COLUMNS,
         META_COLUMNS,
+        NUMERIC_COLUMNS,
         TARGET_COLUMN,
     )
 except ModuleNotFoundError:
@@ -48,12 +50,13 @@ except ModuleNotFoundError:
     )
     from labeling import generate_snapshot_dataset, load_break_events
     from schema import (
+        CATEGORICAL_COLUMNS,
         FEATURE_COLUMNS,
         LEAKAGE_FORBIDDEN_COLUMNS,
         META_COLUMNS,
+        NUMERIC_COLUMNS,
         TARGET_COLUMN,
     )
-
 
 SUPPORTED_HORIZON_YEARS = frozenset({1, 2, 5})
 DEFAULT_TARGET_COLUMN = TARGET_COLUMN
@@ -320,7 +323,15 @@ def engineer_pipe_features(
         )
 
     # Keep an audit trail before imputing material or filtering numerical values.
+    #df = remove_incomplete_snapshots(snapshots)
+    #df = add_years_since_last_break(df)
+    #df["horizon_years"] = int(horizon_years)
     df = remove_incomplete_snapshots(snapshots)
+    # Sauvegarde le dataset final, sans les lignes vides.
+    final_snapshot_path = resolve_dataset_path()
+    final_snapshot_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(final_snapshot_path, index=False)
+
     df = add_years_since_last_break(df)
     df["horizon_years"] = int(horizon_years)
 

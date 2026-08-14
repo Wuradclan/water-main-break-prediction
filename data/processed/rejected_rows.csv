@@ -1,0 +1,759 @@
+asset_id,snapshot_date,material,diameter_mm,install_year,age_years,prior_break_count,break_within_horizon,horizon_years,street,snapshot_origin,missing_columns,rejection_reason,rejected_at_utc
+14700,1987-01-25,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1987-02-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1987-06-14,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1987-06-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1987-12-27,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1988-01-20,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1988-01-25,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1988-02-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1988-06-14,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1988-06-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1988-09-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1988-10-25,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1988-11-26,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1988-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1988-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1988-12-18,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1988-12-19,,,,,0,0,5,WINDOM RD,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1988-12-23,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1988-12-27,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1989-01-19,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1989-01-20,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1989-01-20,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1989-01-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1989-01-25,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1989-01-27,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1989-02-04,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1989-02-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1989-03-08,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1989-06-14,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1989-06-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1989-07-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1989-09-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1989-10-25,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1989-11-26,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1989-11-30,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1989-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1989-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1989-12-18,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1989-12-19,,,,,0,0,5,WINDOM RD,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1989-12-23,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1989-12-27,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1990-01-07,,,,,0,0,5,ST CLAIR AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1990-01-12,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1990-01-19,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1990-01-20,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1990-01-20,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1990-01-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1990-01-25,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1990-01-27,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1990-01-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1990-02-04,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1990-02-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1990-03-08,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1990-06-14,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1990-06-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1990-07-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1990-09-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1990-10-25,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1990-11-26,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1990-11-28,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1990-11-30,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1990-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1990-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1990-12-18,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1990-12-19,,,,,0,0,5,WINDOM RD,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1990-12-23,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1990-12-27,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1991-01-07,,,,,0,0,5,ST CLAIR AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1991-01-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1991-01-12,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1991-01-19,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1991-01-20,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1991-01-20,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1991-01-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1991-01-25,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1991-01-27,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1991-01-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1991-02-04,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1991-02-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1991-02-26,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1991-03-08,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1991-06-14,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1991-06-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1991-07-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1991-09-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1991-10-25,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1991-11-26,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1991-11-28,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1991-11-30,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1991-12-16,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1991-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1991-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1991-12-18,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1991-12-19,,,,,0,0,5,WINDOM RD,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1991-12-23,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1991-12-27,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1991-12-30,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1992-01-01,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1992-01-07,,,,,0,0,5,ST CLAIR AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1992-01-09,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1992-01-12,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1992-01-19,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1992-01-20,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1992-01-20,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1992-01-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1992-01-25,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1992-01-27,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1992-01-28,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1992-02-04,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1992-02-09,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1992-02-20,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1992-03-08,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1992-06-14,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1992-06-28,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1992-07-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1992-09-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1992-10-25,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1992-11-26,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1992-11-28,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1992-11-30,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1992-12-03,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1992-12-13,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1992-12-16,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1992-12-18,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1992-12-18,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1992-12-19,,,,,0,0,5,WINDOM RD,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40850,1992-12-27,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1993-01-01,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1993-01-07,,,,,0,0,5,ST CLAIR AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1993-01-19,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1993-01-20,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1993-01-20,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1993-01-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1993-01-27,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1993-02-03,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1993-02-04,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1993-02-19,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1993-02-20,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1993-02-24,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1993-02-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1993-02-26,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1993-03-08,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1993-03-30,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1993-04-28,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1993-05-08,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1993-06-28,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1993-07-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1993-08-08,,,,,0,0,5,GOLFVIEW PL,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36230,1993-09-01,,,,,0,1,5,STIRLING AVE S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1993-10-25,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,1993-11-26,,,,,0,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1993-11-28,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1993-11-30,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1993-11-30,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1993-12-03,,,,,0,0,5,CORAL CRES,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1993-12-16,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1993-12-18,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1993-12-18,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+88992,1993-12-18,,,,,0,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1993-12-19,,,,,0,1,5,WINDOM RD,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1993-12-23,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1994-01-01,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1994-01-07,,,,,0,0,5,ST CLAIR AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1994-01-16,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1994-01-19,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1994-01-20,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1994-01-24,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1994-01-27,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1994-02-03,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1994-02-04,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1994-02-12,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1994-02-19,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1994-02-20,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1994-02-24,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1994-02-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1994-02-26,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1994-03-08,,,,,0,1,5,CORAL CRES,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1994-03-30,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1994-04-28,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1994-06-28,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79238,1994-07-15,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1994-08-08,,,,,0,0,5,GOLFVIEW PL,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1994-11-15,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,1994-11-30,,,,,0,1,5,SOUTHILL DR,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1994-11-30,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1994-12-16,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1994-12-28,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1995-01-01,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,1995-01-07,,,,,0,1,5,ST CLAIR AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1995-01-12,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1995-01-16,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,1995-01-19,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,1995-01-28,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1995-02-03,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1995-02-12,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1995-02-18,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1995-02-19,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1995-02-20,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1995-02-24,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1995-02-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1995-02-26,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1995-03-30,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1995-04-28,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1995-06-28,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1995-08-08,,,,,0,0,5,GOLFVIEW PL,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,1995-10-13,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1995-11-15,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,1995-11-28,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1995-11-30,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1995-12-16,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1995-12-28,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,1996-01-01,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1996-01-01,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,1996-01-09,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1996-01-16,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,1996-01-19,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1996-02-03,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1996-02-12,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1996-02-18,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1996-02-19,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1996-02-20,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1996-02-24,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1996-02-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1996-02-25,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,1996-02-26,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1996-02-26,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1996-03-30,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1996-04-28,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1996-06-28,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,1996-07-03,,,,,0,0,5,HOFFMAN ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1996-08-08,,,,,0,0,5,GOLFVIEW PL,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,1996-10-13,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1996-11-15,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1996-11-30,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1996-12-16,,,,,0,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1996-12-19,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,1996-12-30,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,1997-01-01,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,1997-01-01,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1997-01-11,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1997-01-14,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1997-01-16,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,1997-01-19,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,1997-01-26,,,,,0,0,5,ANN ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1997-02-03,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,1997-02-03,,,,,0,0,5,BOEHMER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1997-02-12,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1997-02-17,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1997-02-18,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1997-02-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1997-02-19,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1997-02-20,,,,,0,1,5,BECKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1997-02-24,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1997-02-24,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1997-02-25,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1997-02-26,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1997-03-30,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1997-04-13,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1997-04-28,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1997-06-28,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,1997-07-03,,,,,0,0,5,HOFFMAN ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1997-08-08,,,,,0,0,5,GOLFVIEW PL,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,1997-10-13,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1997-11-15,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1997-11-30,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,1997-12-03,,,,,0,1,5,CORAL CRES,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,1997-12-13,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,1997-12-18,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,1997-12-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,1998-01-01,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,1998-01-07,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1998-01-11,,,,,0,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1998-01-14,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1998-01-16,,,,,0,0,5,WALKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,1998-01-19,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,1998-01-26,,,,,0,0,5,ANN ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,1998-02-01,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1760,1998-02-03,,,,,0,1,5,BECKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,1998-02-03,,,,,0,0,5,BOEHMER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1998-02-12,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1998-02-17,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1998-02-18,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1998-02-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1998-02-19,,,,,0,1,5,WALKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1998-02-24,,,,,0,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1998-02-24,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,1998-02-26,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,1998-03-06,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,1998-03-25,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,1998-03-30,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1998-04-13,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26730,1998-04-28,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64330,1998-05-08,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,1998-06-28,,,,,0,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,1998-07-03,,,,,0,0,5,HOFFMAN ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140414,1998-08-08,,,,,0,1,5,GOLFVIEW PL,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,1998-10-13,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,1998-11-06,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1998-11-15,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,1998-11-30,,,,,0,1,5,STIRLING AVE S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,1998-12-01,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,1998-12-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,1998-12-18,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,1998-12-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,1999-01-01,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,1999-01-07,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1999-01-14,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,1999-01-16,,,,,0,1,5,WALKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,1999-01-19,,,,,0,0,5,FERGUS AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,1999-01-26,,,,,0,0,5,ANN ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,1999-02-01,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,1999-02-03,,,,,0,0,5,BOEHMER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40900,1999-02-12,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1999-02-17,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,1999-02-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,1999-03-06,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,1999-03-07,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,1999-03-25,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,1999-04-13,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,1999-04-28,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,1999-04-30,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,1999-07-03,,,,,0,0,5,HOFFMAN ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,1999-07-20,,,,,1,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,1999-10-13,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,1999-10-14,,,,,0,0,5,nan,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,1999-10-22,,,,,0,0,5,nan,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,1999-11-06,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+445,1999-11-15,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,1999-12-01,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,1999-12-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,1999-12-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,1999-12-15,,,,,1,0,5,WINDOM RD,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,1999-12-18,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,1999-12-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,1999-12-21,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14260,1999-12-28,,,,,0,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2000-01-01,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2000-01-07,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2000-01-14,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14300,2000-01-19,,,,,0,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2000-01-21,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,2000-01-26,,,,,0,0,5,ANN ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2000-02-01,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2000-02-03,,,,,0,0,5,BOEHMER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2000-02-17,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,2000-02-18,,,,,0,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2000-02-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2000-02-19,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2000-03-06,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2000-03-07,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,2000-03-25,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2000-04-13,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2000-04-28,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2000-04-30,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,2000-07-03,,,,,0,0,5,HOFFMAN ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,2000-07-20,,,,,1,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2000-07-22,,,,,0,0,5,nan,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17780,2000-10-13,,,,,0,1,5,GUERIN AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2000-10-14,,,,,0,0,5,nan,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2000-10-22,,,,,0,0,5,nan,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,2000-11-06,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2000-11-09,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,2000-12-01,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2000-12-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,2000-12-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+43740,2000-12-15,,,,,1,1,5,WINDOM RD,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,2000-12-18,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2000-12-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2000-12-21,,,,,0,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2001-01-01,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2001-01-07,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2001-01-14,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2001-01-21,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,2001-01-26,,,,,0,0,5,ANN ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2001-02-01,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2001-02-03,,,,,0,0,5,BOEHMER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2001-02-17,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2001-02-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2001-02-19,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,2001-02-25,,,,,0,1,5,WALKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2001-02-28,,,,,1,0,5,ST CLAIR AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2001-03-06,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2001-03-07,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2001-03-25,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,2001-03-25,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2001-04-13,,,,,0,0,5,MAUSSER AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2001-04-28,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2001-04-30,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94832,2001-07-03,,,,,0,1,5,HOFFMAN ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2001-07-22,,,,,0,0,5,nan,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2001-10-14,,,,,0,0,5,nan,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2001-10-22,,,,,0,0,5,nan,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,2001-11-06,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2001-11-09,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,2001-12-01,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2001-12-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2001-12-15,,,,,0,0,5,nan,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2001-12-15,,,,,0,0,5,NORFOLK CRES,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,2001-12-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2001-12-15,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2001-12-15,,,,,0,0,5,PATTANDON AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2001-12-15,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,2001-12-18,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2001-12-18,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+444,2001-12-19,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2002-01-07,,,,,0,0,5,BRIDGE ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,2002-01-11,,,,,0,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2002-01-14,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2002-01-21,,,,,1,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2002-01-21,,,,,2,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2002-01-21,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+640,2002-01-26,,,,,0,1,5,ANN ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2002-02-01,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2002-02-03,,,,,0,1,5,BOEHMER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2002-02-10,,,,,2,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2002-02-17,,,,,0,1,5,MAUSSER AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4648,2002-02-18,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2002-02-19,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2002-02-28,,,,,1,0,5,ST CLAIR AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2002-03-06,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+489,2002-03-06,,,,,1,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2002-03-07,,,,,1,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,2002-03-25,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2002-04-13,,,,,0,1,5,MAUSSER AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2002-04-28,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2002-04-30,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2002-06-12,,,,,0,0,5,VALEWOOD PL,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2002-07-22,,,,,0,0,5,nan,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2002-08-03,,,,,0,0,5,REX DR,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2002-08-05,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2002-10-14,,,,,0,0,5,nan,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2002-10-22,,,,,0,0,5,nan,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,2002-11-06,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2002-11-09,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,2002-12-01,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2002-12-01,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2002-12-15,,,,,0,0,5,nan,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2002-12-15,,,,,0,0,5,NORFOLK CRES,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,2002-12-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2002-12-15,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2002-12-15,,,,,0,0,5,PATTANDON AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2002-12-15,,,,,0,0,5,STIRLING AVE S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+19990,2002-12-18,,,,,0,1,5,HUBER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2002-12-18,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+490,2003-01-07,,,,,0,1,5,BRIDGE ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2003-01-08,,,,,3,0,5,FLORENCE AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2003-01-21,,,,,1,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2003-01-21,,,,,2,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2003-01-21,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2003-02-01,,,,,0,1,5,VALEWOOD PL,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2003-02-10,,,,,2,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2003-02-19,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2003-02-28,,,,,1,0,5,ST CLAIR AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2003-03-06,,,,,0,1,5,VALEWOOD PL,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29220,2003-03-25,,,,,0,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2003-04-28,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2003-04-30,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2003-06-05,,,,,0,0,5,HEIMAN ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2003-07-22,,,,,0,0,5,nan,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2003-08-03,,,,,0,0,5,REX DR,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2003-08-05,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,2003-09-14,,,,,2,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2003-09-15,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2003-10-14,,,,,0,0,5,nan,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2003-10-22,,,,,0,0,5,nan,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40770,2003-11-06,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2003-11-09,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+432,2003-11-23,,,,,1,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+1780,2003-12-01,,,,,0,1,5,BECKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2003-12-01,,,,,0,1,5,STIRLING AVE S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2003-12-15,,,,,0,0,5,nan,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2003-12-15,,,,,0,0,5,NORFOLK CRES,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,2003-12-15,,,,,1,0,5,STIRLING AVE S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,2003-12-15,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2003-12-15,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2003-12-15,,,,,0,0,5,PATTANDON AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2004-01-08,,,,,3,0,5,FLORENCE AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2004-01-12,,,,,0,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,2004-01-14,,,,,2,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2004-01-21,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2004-01-26,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2004-01-31,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2004-01-31,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2004-02-07,,,,,0,0,5,HEBEL PL,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2004-02-17,,,,,1,0,5,SOUTHILL DR,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2004-02-19,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2004-02-28,,,,,1,0,5,ST CLAIR AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2004-03-13,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2004-03-17,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2004-04-10,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2004-04-18,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2004-04-28,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2004-04-30,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2004-06-05,,,,,0,0,5,HEIMAN ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2004-06-26,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2004-07-22,,,,,0,0,5,nan,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2004-08-03,,,,,0,0,5,REX DR,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2004-08-05,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2004-09-15,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29230,2004-10-05,,,,,2,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2004-10-14,,,,,0,1,5,nan,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2004-10-22,,,,,0,1,5,nan,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2004-11-09,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2004-12-15,,,,,0,0,5,NORFOLK CRES,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,2004-12-15,,,,,1,0,5,STIRLING AVE S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40880,2004-12-15,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2004-12-15,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2004-12-15,,,,,0,0,5,PATTANDON AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2004-12-21,,,,,0,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2005-01-08,,,,,3,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2005-01-21,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2005-01-24,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2005-01-26,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2005-01-31,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2005-01-31,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2005-02-07,,,,,0,0,5,HEBEL PL,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2005-02-17,,,,,1,0,5,SOUTHILL DR,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40870,2005-02-19,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2005-02-28,,,,,1,0,5,ST CLAIR AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2005-03-12,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2005-03-13,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2005-03-17,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2005-03-23,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2005-04-10,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2005-04-18,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2005-04-19,,,,,0,0,5,REX DR,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2005-04-25,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2005-06-05,,,,,0,0,5,HEIMAN ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2005-06-26,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2005-07-22,,,,,0,1,5,nan,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2005-08-03,,,,,0,0,5,REX DR,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2005-08-05,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2005-08-24,,,,,0,0,5,MAURICE ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2005-09-15,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40820,2005-11-09,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2005-11-19,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2005-12-15,,,,,0,0,5,NORFOLK CRES,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,2005-12-15,,,,,2,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,2005-12-15,,,,,1,0,5,STIRLING AVE S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2005-12-15,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2005-12-15,,,,,0,0,5,PATTANDON AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40340,2005-12-31,,,,,2,1,5,WALKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2006-01-08,,,,,3,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2006-01-21,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2006-01-24,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2006-01-26,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2006-01-31,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2006-01-31,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2006-02-07,,,,,0,0,5,HEBEL PL,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2006-02-17,,,,,1,0,5,SOUTHILL DR,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2006-02-28,,,,,1,1,5,ST CLAIR AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2006-03-12,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2006-03-13,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2006-03-17,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2006-03-23,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2006-03-25,,,,,1,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2006-04-10,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2006-04-18,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2006-04-19,,,,,0,0,5,REX DR,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2006-04-25,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2006-06-05,,,,,0,0,5,HEIMAN ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2006-06-09,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2006-06-26,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2006-08-03,,,,,0,0,5,REX DR,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2006-08-05,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2006-08-24,,,,,0,0,5,MAURICE ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2006-09-15,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2006-11-19,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2006-12-15,,,,,0,1,5,nan,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+27940,2006-12-15,,,,,0,1,5,NORFOLK CRES,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29660,2006-12-15,,,,,2,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+36250,2006-12-15,,,,,1,1,5,STIRLING AVE S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+442,2006-12-15,,,,,4,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+63500,2006-12-15,,,,,0,1,5,PATTANDON AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+79396,2006-12-15,,,,,0,1,5,STIRLING AVE S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2007-01-08,,,,,3,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2007-01-21,,,,,2,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26750,2007-01-21,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2007-01-24,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2007-01-26,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2007-01-31,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2007-01-31,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2007-02-07,,,,,0,0,5,HEBEL PL,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2007-02-14,,,,,1,0,5,FERGUS AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2007-02-17,,,,,1,0,5,SOUTHILL DR,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2007-03-12,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2007-03-13,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2007-03-17,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2007-03-23,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2007-04-10,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2007-04-18,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2007-04-19,,,,,0,0,5,REX DR,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2007-04-25,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2007-06-05,,,,,0,0,5,HEIMAN ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2007-06-09,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+38960,2007-06-12,,,,,0,1,5,VALEWOOD PL,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2007-06-26,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2007-07-12,,,,,0,0,5,SYDNEY ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2007-08-03,,,,,0,1,5,REX DR,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2007-08-05,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2007-08-24,,,,,0,0,5,MAURICE ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2007-09-15,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2007-11-19,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2007-11-22,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2007-12-10,,,,,2,0,5,MAUSSER AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2008-01-07,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2008-01-08,,,,,3,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2008-01-16,,,,,2,0,5,CORAL CRES,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2008-01-19,,,,,0,0,5,EIGHTH AVE,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2008-01-24,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2008-01-26,,,,,0,0,5,OTTAWA ST N,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2008-01-31,,,,,0,0,5,GUERIN AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2008-01-31,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2008-02-07,,,,,0,0,5,HEBEL PL,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2008-02-14,,,,,1,0,5,FERGUS AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2008-02-17,,,,,1,0,5,SOUTHILL DR,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2008-03-12,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2008-03-13,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2008-03-17,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2008-03-23,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2008-04-10,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2008-04-18,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2008-04-25,,,,,2,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+18400,2008-06-05,,,,,0,1,5,HEIMAN ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2008-06-09,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2008-06-16,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2008-07-12,,,,,0,0,5,SYDNEY ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2008-08-24,,,,,0,0,5,MAURICE ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2008-09-15,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2008-10-29,,,,,0,0,5,EDWIN ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2008-11-19,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2008-11-22,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14690,2008-12-03,,,,,3,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25730,2008-12-10,,,,,2,1,5,MAUSSER AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2009-01-07,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2009-01-12,,,,,0,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2009-01-16,,,,,2,0,5,CORAL CRES,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2009-01-19,,,,,0,0,5,EIGHTH AVE,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,2009-01-21,,,,,4,0,5,SCHWEITZER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2009-01-24,,,,,0,0,5,SOUTHILL DR,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95502,2009-01-26,,,,,0,1,5,OTTAWA ST N,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+17770,2009-01-31,,,,,0,1,5,GUERIN AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2009-01-31,,,,,2,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+78014,2009-02-07,,,,,0,1,5,HEBEL PL,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2009-02-14,,,,,1,0,5,FERGUS AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35260,2009-02-17,,,,,1,1,5,SOUTHILL DR,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2009-03-12,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40800,2009-03-13,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+83172,2009-03-17,,,,,0,1,5,FAIRMOUNT RD,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2009-03-23,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40810,2009-04-10,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40760,2009-04-18,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2009-06-09,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2009-06-16,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40980,2009-06-26,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2009-07-12,,,,,0,0,5,SYDNEY ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2009-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2009-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2009-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2009-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2009-08-24,,,,,0,0,5,MAURICE ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2009-10-29,,,,,0,0,5,EDWIN ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2009-11-19,,,,,0,0,5,BECKER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2009-11-22,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2010-01-07,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2010-01-16,,,,,2,0,5,CORAL CRES,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2010-01-17,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2010-01-19,,,,,0,0,5,EIGHTH AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+441,2010-01-21,,,,,4,1,5,SCHWEITZER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+94682,2010-01-24,,,,,0,1,5,SOUTHILL DR,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2010-02-03,,,,,2,0,5,FLORENCE AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2010-02-14,,,,,1,0,5,FERGUS AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101475,2010-03-12,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+13830,2010-03-23,,,,,0,1,5,FAIRMOUNT RD,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+32260,2010-04-19,,,,,0,1,5,REX DR,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2010-04-25,,,,,2,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2010-06-09,,,,,0,0,5,FAIRMOUNT RD,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2010-06-16,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2010-07-12,,,,,0,0,5,SYDNEY ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2010-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2010-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2010-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2010-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+25700,2010-08-24,,,,,0,1,5,MAURICE ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2010-10-29,,,,,0,0,5,EDWIN ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2010-11-10,,,,,2,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95100,2010-11-19,,,,,0,1,5,BECKER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2010-11-22,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2011-01-07,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2011-01-16,,,,,1,0,5,BOEHMER ST,negative_T_minus_H_minus_5y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2011-01-16,,,,,2,0,5,CORAL CRES,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2011-01-17,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2011-01-19,,,,,0,0,5,EIGHTH AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2011-02-03,,,,,2,0,5,FLORENCE AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2011-02-14,,,,,1,0,5,FERGUS AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2011-03-21,,,,,2,0,5,ST CLAIR AVE,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+76041,2011-06-09,,,,,0,1,5,FAIRMOUNT RD,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2011-06-16,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2011-07-12,,,,,0,0,5,SYDNEY ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2011-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2011-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2011-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2011-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2011-10-29,,,,,0,0,5,EDWIN ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2011-11-22,,,,,0,0,5,HUBER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2012-01-07,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2012-01-16,,,,,1,0,5,BOEHMER ST,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2012-01-16,,,,,2,0,5,CORAL CRES,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2012-01-17,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2012-01-19,,,,,0,0,5,EIGHTH AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2012-02-03,,,,,2,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14270,2012-02-14,,,,,1,1,5,FERGUS AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2012-02-17,,,,,4,0,5,nan,negative_T_minus_H_minus_4y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2012-03-21,,,,,2,0,5,ST CLAIR AVE,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2012-06-16,,,,,4,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2012-06-16,,,,,5,0,5,OTTAWA ST S,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+37400,2012-07-12,,,,,0,1,5,SYDNEY ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2012-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2012-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2012-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2012-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2012-10-29,,,,,0,0,5,EDWIN ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+87038,2012-11-22,,,,,0,1,5,HUBER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2013-01-07,,,,,5,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2013-01-16,,,,,1,0,5,BOEHMER ST,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+8000,2013-01-16,,,,,2,1,5,CORAL CRES,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2013-01-17,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+140394,2013-01-19,,,,,0,1,5,EIGHTH AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14680,2013-02-03,,,,,2,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2013-02-17,,,,,4,0,5,nan,negative_T_minus_H_minus_3y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2013-03-21,,,,,2,0,5,ST CLAIR AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+26700,2013-06-16,,,,,4,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+29680,2013-06-16,,,,,5,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2013-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2013-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2013-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2013-08-14,,,,,0,0,5,WEBER ST E,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+11620,2013-10-29,,,,,0,1,5,EDWIN ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2013-11-10,,,,,4,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2013-11-15,,,,,4,0,5,FLORENCE AVE,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2014-01-16,,,,,1,0,5,BOEHMER ST,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+64030,2014-01-16,,,,,1,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2014-01-17,,,,,0,0,5,MILL ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40960,2014-02-05,,,,,3,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95460,2014-02-06,,,,,3,1,5,OTTAWA ST S,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2014-02-17,,,,,4,0,5,nan,negative_T_minus_H_minus_2y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+35730,2014-03-21,,,,,2,1,5,ST CLAIR AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+40790,2014-08-14,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+90446,2014-08-14,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95014,2014-08-14,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+95308,2014-08-14,,,,,0,1,5,WEBER ST E,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2014-11-10,,,,,4,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+14700,2014-11-15,,,,,4,1,5,FLORENCE AVE,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2015-01-16,,,,,1,0,5,BOEHMER ST,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+4101474,2015-01-17,,,,,0,1,5,MILL ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2015-02-17,,,,,4,0,5,nan,negative_T_minus_H_minus_1y,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+3680,2016-01-16,,,,,1,1,5,BOEHMER ST,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
+0,2016-02-17,,,,,4,1,5,nan,positive_T_minus_H,"material,diameter_mm,install_year",all_core_physical_features_missing,2026-08-14T14:22:24.728610+00:00
