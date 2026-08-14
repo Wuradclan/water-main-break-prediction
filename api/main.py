@@ -16,6 +16,7 @@ Phase 6 (UI entraînement) :
 from __future__ import annotations
 
 import math
+import os
 import subprocess
 import tempfile
 import threading
@@ -83,7 +84,11 @@ regressor_name_info = "Aucun régresseur chargé"
 # régression) via `docker exec` dans le conteneur trainer.
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-TRAINER_CONTAINER = "bris-aqueduc-trainer"
+# Nom du conteneur trainer cible pour `docker exec` -- surchargable via la
+# variable d'environnement TRAINER_CONTAINER (utile pour faire tourner
+# plusieurs stacks/branches en parallele sur la meme machine, ex: deploiement
+# multi-branches avec des noms de conteneurs suffixes).
+TRAINER_CONTAINER = os.environ.get("TRAINER_CONTAINER", "bris-aqueduc-trainer")
 # /app/training_jobs quand l'API tourne dans son conteneur Docker (volume
 # monté sur tout le repo, cf docker-compose.yml), sinon un dossier local pour
 # l'exécution/tests en dehors de Docker.
