@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: mlflow/Dockerfile
-    container_name: bris-aqueduc-mlflow
+    container_name: bris-aqueduc-mlflow-cm
     hostname: mlflow
     command: >
       mlflow server
@@ -14,7 +14,7 @@ services:
       --allowed-hosts "*"
       --cors-allowed-origins "*"
     ports:
-      - "5050:5000"
+      - "5051:5000"
     volumes:
       - ./mlruns:/mlruns
       - .:/app
@@ -29,7 +29,7 @@ services:
     build:
       context: .
       dockerfile: train/Dockerfile
-    container_name: bris-aqueduc-trainer
+    container_name: bris-aqueduc-trainer-cm
     volumes:
       - ./mlruns:/mlruns
       - .:/app
@@ -45,12 +45,13 @@ services:
     build:
       context: .
       dockerfile: api/Dockerfile
-    container_name: bris-aqueduc-api
+    container_name: bris-aqueduc-api-cm
     command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
-      - MLFLOW_TRACKING_URI=http://bris-aqueduc-mlflow:5000
+      - MLFLOW_TRACKING_URI=http://bris-aqueduc-mlflow-cm:5000
+      - TRAINER_CONTAINER=bris-aqueduc-trainer-cm
       - PYTHONUNBUFFERED=1
     depends_on:
       mlflow:
@@ -60,16 +61,15 @@ services:
     volumes:
       - .:/app
       - ./mlruns:/mlruns
-      # Socket Docker : seul l'API peut lancer docker exec (pas le frontend)
       - /var/run/docker.sock:/var/run/docker.sock
 
   frontend:
     build:
       context: .
       dockerfile: app/Dockerfile
-    container_name: bris-aqueduc-frontend
+    container_name: bris-aqueduc-frontend-cm
     ports:
-      - "8501:8501"
+      - "8502:8501"
     environment:
       - API_BASE_URL=http://api:8000
     depends_on:
